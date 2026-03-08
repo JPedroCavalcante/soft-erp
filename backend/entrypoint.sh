@@ -6,16 +6,16 @@ echo "Soft ERP Backend - Starting..."
 echo "============================================"
 
 echo "Waiting for MySQL to be ready..."
-until mysql -h"${DB_HOST}" -u"${DB_USERNAME}" -p"${DB_PASSWORD}" -e "SELECT 1" >/dev/null 2>&1; do
+until mysql --skip-ssl -h"${DB_HOST}" -u"${DB_USERNAME}" -p"${DB_PASSWORD}" -e "SELECT 1" >/dev/null 2>&1; do
     echo "MySQL is unavailable - sleeping"
     sleep 3
 done
 
 echo "MySQL is up and ready!"
 
-if [ ! -d "vendor" ]; then
+if [ ! -f "vendor/autoload.php" ]; then
     echo "Installing Composer dependencies..."
-    composer install --no-interaction --optimize-autoloader --no-dev
+    composer install --no-interaction --optimize-autoloader
 else
     echo "Composer dependencies already installed"
 fi
@@ -36,17 +36,14 @@ else
     echo "Application key already exists"
 fi
 
-echo "Optimizing Laravel..."
+echo "Running database migrations and seeders..."
+php artisan migrate --force --seed
+
+echo "Clearing caches..."
 php artisan config:clear
 php artisan cache:clear
 php artisan route:clear
 php artisan view:clear
-
-echo "Running database migrations and seeders..."
-php artisan migrate --force --seed
-
-php artisan config:cache
-php artisan route:cache
 
 echo "============================================"
 echo "Backend is ready!"
