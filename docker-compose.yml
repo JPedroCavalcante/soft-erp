@@ -1,0 +1,91 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: soft-erp-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: soft_erp
+      MYSQL_USER: soft_erp_user
+      MYSQL_PASSWORD: soft_erp_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - soft-erp-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    command: --default-authentication-plugin=mysql_native_password
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: soft-erp-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+      - backend_vendor:/var/www/html/vendor
+    environment:
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: soft_erp
+      DB_USERNAME: soft_erp_user
+      DB_PASSWORD: soft_erp_password
+      APP_ENV: local
+      APP_DEBUG: true
+    networks:
+      - soft-erp-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: soft-erp-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    networks:
+      - soft-erp-network
+    depends_on:
+      - backend
+    stdin_open: true
+    tty: true
+
+networks:
+  soft-erp-network:
+    driver: bridge
+    name: soft-erp-network
+
+volumes:
+  mysql_data:
+    driver: local
+    name: soft-erp-mysql-data
+  backend_vendor:
+    driver: local
+    name: soft-erp-backend-vendor
+  frontend_node_modules:
+    driver: local
+    name: soft-erp-frontend-node-modules
