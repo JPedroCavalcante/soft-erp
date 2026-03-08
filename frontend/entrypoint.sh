@@ -5,9 +5,11 @@ echo "============================================"
 echo "Soft ERP Frontend - Starting..."
 echo "============================================"
 
-if [ ! -d "node_modules" ]; then
+chown -R node:node /app
+
+if [ ! -f "node_modules/.bin/vite" ]; then
     echo "Installing npm dependencies..."
-    npm install
+    su -s /bin/bash node -c "npm install"
     echo "npm dependencies installed"
 else
     echo "npm dependencies already installed"
@@ -18,4 +20,4 @@ echo "Frontend is ready!"
 echo "Starting Vite development server..."
 echo "============================================"
 
-exec npm run dev -- --host 0.0.0.0
+exec su -s /bin/bash node -c "npm run dev -- --host 0.0.0.0"
