@@ -1,11 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
+import productRoutes from '@/modules/products/routes';
 
 const routes: RouteRecordRaw[] = [
-  {
-    path: '/',
-    redirect: '/products'
-  },
+
+  ...productRoutes,
 ];
 
 const router = createRouter({

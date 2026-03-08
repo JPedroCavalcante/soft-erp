@@ -1,7 +1,9 @@
 import axios from 'axios';
+import { API_CONFIG } from '@/config';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api',
+  baseURL: API_CONFIG.BASE_URL,
+  timeout: API_CONFIG.TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -11,7 +13,20 @@ const api = axios.create({
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    console.error('API Error:', error.response?.data || error.message);
+    const status = error.response?.status;
+
+    if (status === 500) {
+      console.error('Erro interno do servidor');
+    } else if (status === 404) {
+      console.error('Recurso não encontrado');
+    } else if (status === 403) {
+      console.error('Sem permissão para acessar este recurso');
+    } else if (status === 401) {
+      console.error('Não autenticado');
+    } else if (!error.response) {
+      console.error('Erro de conexão com o servidor');
+    }
+
     return Promise.reject(error);
   }
 );
