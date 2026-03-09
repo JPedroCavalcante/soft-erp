@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG } from '@/config';
 
 const api = axios.create({
@@ -10,9 +10,20 @@ const api = axios.create({
   },
 });
 
+api.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error: AxiosError) => Promise.reject(error)
+);
+
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
+  (response: any) => response,
+  (error: AxiosError) => {
     const status = error.response?.status;
 
     if (status === 500) {

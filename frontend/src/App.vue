@@ -1,32 +1,20 @@
 <template>
-  <AppLayout>
+  <AppLayout v-if="showLayout">
     <router-view />
   </AppLayout>
+  <router-view v-else />
   <ToastContainer />
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import AppLayout from '@/core/layouts/AppLayout.vue';
 import ToastContainer from '@/core/components/ToastContainer.vue';
+
+const route = useRoute();
+
+const showLayout = computed(() => {
+  return route.name !== 'login';
+});
 </script>
-
-<style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
-  color: #333;
-}
-
-#app {
-  min-height: 100vh;
-}
-</style>

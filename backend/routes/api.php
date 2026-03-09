@@ -60,10 +60,14 @@ if (is_dir($modulesPath)) {
         $routeFile = $modulePath . '/Routes/api.php';
 
         if (file_exists($routeFile)) {
-            // Load module routes with module prefix
-            Route::prefix(strtolower($moduleName))
-                ->name(strtolower($moduleName) . '.')
-                ->group($routeFile);
+            if ($moduleName === 'Auth') {
+                Route::name('auth.')->group($routeFile);
+            } else {
+                Route::prefix(strtolower($moduleName))
+                    ->name(strtolower($moduleName) . '.')
+                    ->middleware('auth')
+                    ->group($routeFile);
+            }
         }
     }
 }
