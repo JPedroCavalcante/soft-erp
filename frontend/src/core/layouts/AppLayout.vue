@@ -2,22 +2,25 @@
   <div class="app-layout">
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h1 class="logo">🏢 Soft ERP</h1>
+        <h1 class="logo">
+          <Icon name="office" :size="28" />
+          <span>Soft ERP</span>
+        </h1>
       </div>
 
       <nav class="sidebar-nav">
         <router-link to="/products" class="nav-item">
-          <span class="nav-icon">📦</span>
+          <Icon name="package" :size="20" />
           <span class="nav-text">Produtos</span>
         </router-link>
 
         <router-link to="/purchases" class="nav-item">
-          <span class="nav-icon">🛒</span>
+          <Icon name="shopping-cart" :size="20" />
           <span class="nav-text">Compras</span>
         </router-link>
 
         <router-link to="/sales" class="nav-item">
-          <span class="nav-icon">💰</span>
+          <Icon name="currency-dollar" :size="20" />
           <span class="nav-text">Vendas</span>
         </router-link>
       </nav>
@@ -31,7 +34,8 @@
           </div>
         </div>
         <button @click="handleLogout" class="btn-logout">
-          <span>🚪</span> Sair
+          <Icon name="logout" :size="18" />
+          <span>Sair</span>
         </button>
       </div>
     </aside>
@@ -54,6 +58,7 @@
 import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import Icon from '@/core/components/Icon.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -112,10 +117,13 @@ const handleLogout = async () => {
 
 .logo {
   margin: 0;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: white;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 .sidebar-nav {
@@ -149,10 +157,6 @@ const handleLogout = async () => {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.nav-icon {
-  font-size: 20px;
 }
 
 .nav-text {
