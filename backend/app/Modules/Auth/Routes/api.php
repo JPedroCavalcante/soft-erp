@@ -3,6 +3,6 @@
 use App\Modules\Auth\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('auth.logout');
-Route::get('/me', [AuthController::class, 'me'])->middleware('auth')->name('auth.me');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum')->name('logout');
+Route::get('/user', [AuthController::class, 'me'])->middleware('auth:sanctum')->name('user');

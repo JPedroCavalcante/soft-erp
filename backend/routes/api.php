@@ -65,7 +65,7 @@ if (is_dir($modulesPath)) {
             } else {
                 Route::prefix(strtolower($moduleName))
                     ->name(strtolower($moduleName) . '.')
-                    ->middleware('auth')
+                    ->middleware('auth:sanctum')
                     ->group($routeFile);
             }
         }
