@@ -13,7 +13,12 @@ abstract class BaseRepository implements RepositoryInterface
         $this->model = $model;
     }
 
-    public function all()
+    public function all(int $perPage = 10)
+    {
+        return $this->model->latest()->paginate($perPage);
+    }
+
+    public function allWithoutPagination()
     {
         return $this->model->latest()->get();
     }
