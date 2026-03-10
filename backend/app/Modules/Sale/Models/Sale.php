@@ -15,6 +15,7 @@ class Sale extends Model
         'total_amount',
         'total_profit',
         'created_at',
+        'canceled_at',
     ];
 
     protected $casts = [

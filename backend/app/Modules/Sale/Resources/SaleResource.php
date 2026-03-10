@@ -14,6 +14,8 @@ class SaleResource extends JsonResource
             'customer' => $this->customer,
             'total_amount' => number_format((float) $this->total_amount, 2, '.', ''),
             'total_profit' => number_format((float) $this->total_profit, 2, '.', ''),
+            'is_canceled' => $this->canceled_at !== null,
+            'canceled_at' => $this->canceled_at,
             'items' => SaleItemResource::collection($this->whenLoaded('items')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

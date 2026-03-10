@@ -15,6 +15,10 @@ export const salesService = {
     return api.post<ApiResponse<Sale>>('/sale/sales', data);
   },
 
+  cancel(id: number) {
+    return api.post<ApiResponse<Sale>>(`/sale/sales/${id}/cancel`);
+  },
+
   delete(id: number) {
     return api.delete(`/sale/sales/${id}`);
   },

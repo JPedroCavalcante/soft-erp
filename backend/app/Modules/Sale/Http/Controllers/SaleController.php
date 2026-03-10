@@ -155,6 +155,57 @@ class SaleController extends Controller
         return new SaleResource($sale);
     }
 
+    /**
+     * Cancelar venda
+     *
+     * Cancela uma venda existente e reverte o estoque dos produtos vendidos.
+     * A venda não é excluída do banco de dados, apenas marcada como cancelada.
+     *
+     * @urlParam id integer required ID da venda. Example: 1
+     *
+     * @response 200 {
+     *   "data": {
+     *     "id": 1,
+     *     "customer": "Maria Silva Santos",
+     *     "total_amount": "3500.00",
+     *     "total_profit": "500.00",
+     *     "canceled_at": "2024-01-02T10:30:00.000000Z",
+     *     "items": [
+     *       {
+     *         "id": 1,
+     *         "product_id": 1,
+     *         "product": "Notebook Dell Inspiron",
+     *         "quantity": 2,
+     *         "unit_sale_price": "1750.00",
+     *         "historical_average_cost": "1500.00",
+     *         "profit": "500.00"
+     *       }
+     *     ],
+     *     "created_at": "2024-01-01T00:00:00.000000Z",
+     *     "updated_at": "2024-01-02T10:30:00.000000Z"
+     *   }
+     * }
+     *
+     * @response 422 {
+     *   "message": "Esta venda já foi cancelada."
+     * }
+     *
+     * @response 404 {
+     *   "message": "Venda não encontrada."
+     * }
+     */
+    public function cancel(int $id): SaleResource|JsonResponse
+    {
+        try {
+            $sale = $this->service->cancel($id);
+            return new SaleResource($sale);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => $e->getMessage()
+            ], 422);
+        }
+    }
+
     public function destroy(int $id)
     {
         $this->service->destroy($id);

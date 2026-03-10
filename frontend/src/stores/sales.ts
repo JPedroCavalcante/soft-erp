@@ -18,6 +18,8 @@ export interface Sale {
   customer: string;
   total_amount: string;
   total_profit: string;
+  is_canceled: boolean;
+  canceled_at: string | null;
   items?: SaleItem[];
   created_at: string;
   updated_at: string;
@@ -109,6 +111,31 @@ export const useSalesStore = defineStore('sales', {
         return response.data.data;
       } catch (err: unknown) {
         this.error = 'Erro ao criar venda';
+        throw err;
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async cancelSale(id: number) {
+      this.loading = true;
+      this.error = null;
+
+      try {
+        const response = await salesService.cancel(id);
+        const canceledSale = response.data.data;
+
+        const index = this.sales.findIndex(s => s.id === id);
+        if (index !== -1) {
+          this.sales[index] = canceledSale;
+        }
+
+        const productsStore = useProductsStore();
+        await productsStore.fetchProducts(true);
+
+        return canceledSale;
+      } catch (err: unknown) {
+        this.error = 'Erro ao cancelar venda';
         throw err;
       } finally {
         this.loading = false;

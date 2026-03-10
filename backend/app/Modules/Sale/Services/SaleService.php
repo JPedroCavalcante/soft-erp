@@ -57,6 +57,33 @@ class SaleService
         return $sale->load('items.product');
     }
 
+    public function cancel(int $id): Sale
+    {
+        return DB::transaction(function () use ($id) {
+            $sale = $this->repository->find($id);
+
+            if ($sale->canceled_at) {
+                throw new \Exception('Esta venda já foi cancelada.');
+            }
+
+            $sale->load('items');
+
+            foreach ($sale->items as $item) {
+                $product = $this->lockProduct($item->product_id);
+
+                $product->update([
+                    'stock' => $product->stock + $item->quantity,
+                ]);
+            }
+
+            $sale->update([
+                'canceled_at' => now(),
+            ]);
+
+            return $sale->load('items.product');
+        });
+    }
+
     public function destroy(int $id): void
     {
         DB::transaction(function () use ($id) {

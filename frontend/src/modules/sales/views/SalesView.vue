@@ -47,19 +47,29 @@
     </div>
 
     <div v-if="filteredSales.length > 0" class="sales-grid">
-      <div v-for="sale in filteredSales" :key="sale.id" class="sale-card">
+      <div v-for="sale in filteredSales" :key="sale.id" class="sale-card" :class="{ 'canceled': sale.is_canceled }">
         <div class="card-header">
           <div class="header-info">
             <div class="sale-id">#{{ sale.id }}</div>
             <div class="sale-date">{{ formatDate(sale.created_at) }}</div>
+            <span v-if="sale.is_canceled" class="canceled-badge">CANCELADA</span>
           </div>
-          <button
-            class="btn-icon btn-delete"
-            @click="openDeleteModal(sale)"
-            title="Excluir"
-          >
-            <Icon name="trash" :size="18" />
-          </button>
+          <div v-if="!sale.is_canceled" class="card-actions">
+            <button
+              class="btn-icon btn-cancel"
+              @click="openCancelModal(sale)"
+              title="Cancelar venda"
+            >
+              <Icon name="x" :size="18" />
+            </button>
+            <button
+              class="btn-icon btn-delete"
+              @click="openDeleteModal(sale)"
+              title="Excluir"
+            >
+              <Icon name="trash" :size="18" />
+            </button>
+          </div>
         </div>
         <div class="card-body">
           <div class="info-row">
@@ -93,6 +103,35 @@
         <button @click="submitForm" class="btn btn-primary" :disabled="loading">
           <span v-if="loading" class="spinner-small"></span>
           {{ loading ? 'Registrando...' : 'Registrar' }}
+        </button>
+      </template>
+    </Modal>
+
+    <Modal v-model="showCancelModal" title="Cancelar Venda" size="sm">
+      <div class="delete-confirmation">
+        <div class="warning-icon">
+          <Icon name="exclamation-triangle" :size="48" color="var(--primary-600)" />
+        </div>
+        <p class="confirmation-text">
+          Tem certeza que deseja cancelar a venda <strong>#{{ cancelingSale?.id }}</strong>?
+        </p>
+        <p class="warning-text">
+          O estoque dos produtos será revertido.
+        </p>
+      </div>
+      <template #footer>
+        <button class="btn btn-secondary" @click="showCancelModal = false">
+          Voltar
+        </button>
+        <button class="btn btn-primary" :disabled="loading" @click="handleCancel">
+          <span v-if="!loading">
+            <Icon name="x" :size="18" />
+            Cancelar Venda
+          </span>
+          <span v-else class="loading-text">
+            <span class="spinner-small"></span>
+            Cancelando...
+          </span>
         </button>
       </template>
     </Modal>
@@ -148,7 +187,9 @@ const toast = useToast();
 
 const formRef = ref<InstanceType<typeof SaleForm> | null>(null);
 const showCreateModal = ref(false);
+const showCancelModal = ref(false);
 const showDeleteModal = ref(false);
+const cancelingSale = ref<Sale | null>(null);
 const deletingSale = ref<Sale | null>(null);
 const searchQuery = ref('');
 const profitFilter = ref('all');
@@ -243,6 +284,30 @@ const handleCreateSale = async (data: CreateSaleDTO) => {
 
 const submitForm = () => {
   formRef.value?.submitForm();
+};
+
+const openCancelModal = (sale: Sale) => {
+  cancelingSale.value = sale;
+  showCancelModal.value = true;
+};
+
+const handleCancel = async () => {
+  if (!cancelingSale.value) return;
+
+  try {
+    await salesStore.cancelSale(cancelingSale.value.id);
+    toast.success('Venda cancelada com sucesso! Estoque revertido.');
+    showCancelModal.value = false;
+    cancelingSale.value = null;
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'response' in err) {
+      const response = (err as { response?: { data?: { message?: string } } }).response;
+      toast.error(response?.data?.message || 'Erro ao cancelar venda');
+    } else {
+      toast.error('Erro ao cancelar venda');
+    }
+    console.error(err);
+  }
 };
 
 const openDeleteModal = (sale: Sale) => {
@@ -446,10 +511,21 @@ onMounted(() => {
   transition: all var(--transition-base);
 }
 
+.sale-card.canceled {
+  opacity: 0.7;
+  border-color: var(--gray-300);
+  background: var(--gray-50);
+}
+
 .sale-card:hover {
   border-color: var(--primary-300);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
+}
+
+.sale-card.canceled:hover {
+  transform: none;
+  box-shadow: none;
 }
 
 .card-header {
@@ -465,6 +541,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
 }
 
 .sale-id {
@@ -478,6 +555,23 @@ onMounted(() => {
   color: var(--gray-600);
 }
 
+.canceled-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: var(--danger-100);
+  color: var(--danger-700);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 4px;
+  margin-top: 4px;
+  width: fit-content;
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
 .btn-icon {
   width: 32px;
   height: 32px;
@@ -488,6 +582,16 @@ onMounted(() => {
   justify-content: center;
   cursor: pointer;
   transition: all var(--transition-base);
+}
+
+.btn-cancel {
+  background: var(--primary-50);
+  color: var(--primary-600);
+}
+
+.btn-cancel:hover {
+  background: var(--primary-100);
+  color: var(--primary-700);
 }
 
 .btn-delete {
