@@ -37,7 +37,7 @@ else
 fi
 
 echo "Running database migrations and seeders..."
-php artisan migrate --force --seed
+php artisan migrate:fresh --force --seed
 
 echo "Clearing caches..."
 php artisan config:clear
