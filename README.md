@@ -522,7 +522,7 @@ Testes unitários isolados dos Services.
 
 ## Status do Projeto
 
-### ✅ Funcionalidades Implementadas
+### Funcionalidades Implementadas
 
 - **Backend**: Laravel 12 com 5 módulos funcionais (Product, Purchase, Sale, Dashboard, Report)
 - **Frontend**: Vue 3 + TypeScript + Pinia com 6 telas funcionais
@@ -535,7 +535,7 @@ Testes unitários isolados dos Services.
 - **Docker**: Multi-container setup com auto-seed
 - **Documentação**: README.md, API docs (Scramble)
 
-### 🚀 Tecnologias Modernas
+### Tecnologias Modernas
 
 - **Backend**: PHP 8.4, Laravel 12, MySQL 8.0
 - **Frontend**: Vue 3, TypeScript, Vite, Pinia
