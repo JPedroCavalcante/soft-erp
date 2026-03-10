@@ -10,6 +10,7 @@ Sistema de gerenciamento empresarial (ERP) com backend em Laravel 12 e frontend 
 - [Instalação](#instalação)
 - [Usuários padrão](#usuários-padrão)
 - [Arquitetura do Backend](#arquitetura-do-backend)
+  - [Sistema de Logs Estruturados](#sistema-de-logs-estruturados)
 - [Arquitetura do Frontend](#arquitetura-do-frontend)
 - [Testes](#testes)
 
@@ -87,6 +88,7 @@ Após rodar os seeders, os seguintes usuários estarão disponíveis:
 - **DomPDF** para exportação de relatórios em PDF
 - **Maatwebsite/Excel** para exportação em Excel
 - **PHPUnit** para testes
+- **Sistema de Logs** estruturados em JSON (daily rotation)
 
 ### Diferenças em relação ao Laravel padrão
 
@@ -226,6 +228,73 @@ lucro = (preço_venda - custo_médio_histórico) × quantidade
 - Marca venda como cancelada (`is_canceled = true`)
 - Estorna estoque dos produtos vendidos
 - Mantém histórico da venda (soft cancel)
+
+### Sistema de Logs Estruturados
+
+Todos os módulos possuem logging automático em duas camadas:
+
+#### Logs Automáticos (Repository Layer)
+
+Todas as operações CRUD são registradas automaticamente via trait `LogsRepositoryActions`:
+
+- **Operações logadas**: index, show, create, update, delete
+- **Contexto incluído**: user_id, user_email, IP address, user agent, timestamp
+- **Segurança**: Dados sensíveis (password, token, api_key, secret) automaticamente redacted
+
+#### Logs de Negócio (Service Layer)
+
+Operações complexas possuem logs especializados via `LoggingService`:
+
+**Vendas:**
+- Venda criada (com lucro, margem e quantidade de itens)
+- Venda cancelada
+- Tentativa de venda sem estoque suficiente (warning)
+
+**Compras:**
+- Compra criada (com fornecedor e total)
+- Atualização de custo médio ponderado (registra valores antigos e novos)
+
+#### Estrutura dos Logs
+
+Formato JSON estruturado com informações completas:
+
+```json
+{
+  "timestamp": "2026-03-10T10:30:45.123Z",
+  "level": "info",
+  "action": "create",
+  "model": "Product",
+  "model_id": 123,
+  "user_id": 1,
+  "user_email": "admin@softerp.com",
+  "ip_address": "192.168.1.1",
+  "data": {...}
+}
+```
+
+#### Localização e Visualização
+
+**Arquivo:** `storage/logs/repository-YYYY-MM-DD.log`
+
+**Rotação:** Diária com retenção de 14 dias
+
+**Comandos úteis:**
+
+```bash
+# Ver logs de hoje
+docker compose exec backend tail -f storage/logs/repository-$(date +%Y-%m-%d).log
+
+# Buscar vendas criadas
+docker compose exec backend grep "sale_created" storage/logs/repository-*.log
+
+# Buscar ações de um usuário
+docker compose exec backend grep '"user_email":"admin@softerp.com"' storage/logs/repository-*.log
+
+# Alertas de estoque insuficiente
+docker compose exec backend grep "insufficient_stock" storage/logs/repository-*.log
+```
+
+**Documentação completa:** [backend/LOGGING.md](backend/LOGGING.md)
 
 ### Autenticação e autorização
 
@@ -531,20 +600,15 @@ Testes unitários isolados dos Services.
 - **Regras de Negócio**: Custo médio ponderado, cálculo de lucro, validação de estoque
 - **Dashboard**: 6 métricas em tempo real
 - **Relatórios**: 4 tipos com exportação PDF/Excel
+- **Logging**: Sistema estruturado em JSON com logs automáticos (Repository) e de negócio (Service)
 - **Testes**: 94 testes automatizados (253 assertions) - 100% passando
 - **Docker**: Multi-container setup com auto-seed
-- **Documentação**: README.md, API docs (Scramble)
+- **Documentação**: README.md, LOGGING.md, API docs (Scramble)
 
-### Tecnologias Modernas
+### Tecnologias
 
 - **Backend**: PHP 8.4, Laravel 12, MySQL 8.0
 - **Frontend**: Vue 3, TypeScript, Vite, Pinia
 - **Qualidade**: 100% testes passando, 0 bugs conhecidos
 - **Arquitetura**: Repository Pattern, Service Layer, API Resources
 - **DevOps**: Docker Compose, health checks, auto-setup
-
----
-
-## Licença
-
-Este projeto é um sistema de demonstração para fins educacionais.

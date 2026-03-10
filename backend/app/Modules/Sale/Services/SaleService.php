@@ -3,6 +3,7 @@
 namespace App\Modules\Sale\Services;
 
 use App\Core\Services\LoggingService;
+use App\Modules\Dashboard\Services\DashboardService;
 use App\Modules\Sale\Repositories\SaleRepository;
 use App\Modules\Sale\Models\Sale;
 use App\Modules\Product\Models\Product;
@@ -56,6 +57,8 @@ class SaleService
                 itemsCount: count($data['items'])
             );
 
+            DashboardService::clearCache();
+
             return $sale->load('items.product');
         });
     }
@@ -94,6 +97,8 @@ class SaleService
                 customer: $sale->customer,
                 totalAmount: $sale->total_amount
             );
+
+            DashboardService::clearCache();
 
             return $sale->load('items.product');
         });

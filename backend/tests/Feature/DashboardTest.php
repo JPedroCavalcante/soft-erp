@@ -149,4 +149,29 @@ class DashboardTest extends TestCase
         $expectedValue = 10 * 80 + 5 * 150;
         $this->assertEquals(number_format($expectedValue, 2, '.', ''), $response->json('data.total_stock_value'));
     }
+
+    public function test_dashboard_metrics_uses_cache(): void
+    {
+        Product::create(['name' => 'Produto Cache', 'sale_price' => 100, 'stock' => 10, 'average_cost' => 80]);
+
+        $response1 = $this->getJson('/api/dashboard/metrics');
+        $response1->assertStatus(200);
+        $totalStockValue1 = $response1->json('data.total_stock_value');
+
+        Product::create(['name' => 'Produto Novo', 'sale_price' => 200, 'stock' => 5, 'average_cost' => 150]);
+
+        $response2 = $this->getJson('/api/dashboard/metrics');
+        $response2->assertStatus(200);
+        $totalStockValue2 = $response2->json('data.total_stock_value');
+
+        $this->assertEquals($totalStockValue1, $totalStockValue2);
+
+        \App\Modules\Dashboard\Services\DashboardService::clearCache();
+
+        $response3 = $this->getJson('/api/dashboard/metrics');
+        $response3->assertStatus(200);
+        $totalStockValue3 = $response3->json('data.total_stock_value');
+
+        $this->assertNotEquals($totalStockValue1, $totalStockValue3);
+    }
 }

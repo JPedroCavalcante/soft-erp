@@ -3,6 +3,7 @@
 namespace App\Modules\Purchase\Services;
 
 use App\Core\Services\LoggingService;
+use App\Modules\Dashboard\Services\DashboardService;
 use App\Modules\Purchase\Repositories\PurchaseRepository;
 use App\Modules\Purchase\Models\Purchase;
 use App\Modules\Product\Models\Product;
@@ -49,6 +50,8 @@ class PurchaseService
                 totalAmount: $totalAmount,
                 itemsCount: count($data['items'])
             );
+
+            DashboardService::clearCache();
 
             return $purchase->load('items.product');
         });
