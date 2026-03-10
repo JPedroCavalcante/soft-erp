@@ -1,7 +1,5 @@
 <template>
-  <div class="card">
-    <h2>Registrar Compra</h2>
-
+  <div class="purchase-form-wrapper">
     <form @submit.prevent="handleSubmit" class="purchase-form">
       <div class="form-group">
         <label for="supplier">
@@ -77,11 +75,6 @@
 
       <div v-if="error" class="alert alert-error">{{ error }}</div>
       <div v-if="successMessage" class="alert alert-success">{{ successMessage }}</div>
-
-      <button type="submit" class="btn btn-primary" :disabled="loading">
-        <span v-if="loading" class="spinner"></span>
-        {{ loading ? 'Registrando...' : 'Registrar Compra' }}
-      </button>
     </form>
   </div>
 </template>
@@ -188,25 +181,16 @@ const showError = (message: string) => {
   error.value = message;
 };
 
-defineExpose({ resetForm, showSuccess, showError });
+const submitForm = () => {
+  handleSubmit();
+};
+
+defineExpose({ resetForm, showSuccess, showError, submitForm });
 </script>
 
 <style scoped>
-.card {
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.card h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin: 0 0 1.5rem 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #ecf0f1;
+.purchase-form-wrapper {
+  padding: 0;
 }
 
 .purchase-form {
