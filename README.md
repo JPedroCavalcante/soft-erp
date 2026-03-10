@@ -294,8 +294,6 @@ docker compose exec backend grep '"user_email":"admin@softerp.com"' storage/logs
 docker compose exec backend grep "insufficient_stock" storage/logs/repository-*.log
 ```
 
-**Documentação completa:** [backend/LOGGING.md](backend/LOGGING.md)
-
 ### Autenticação e autorização
 
 - O login retorna um token Sanctum que deve ser enviado no header `Authorization: Bearer <token>` em todas as requisições autenticadas.
@@ -603,12 +601,11 @@ Testes unitários isolados dos Services.
 - **Logging**: Sistema estruturado em JSON com logs automáticos (Repository) e de negócio (Service)
 - **Testes**: 94 testes automatizados (253 assertions) - 100% passando
 - **Docker**: Multi-container setup com auto-seed
-- **Documentação**: README.md, LOGGING.md, API docs (Scramble)
+- **Documentação**: README.md, API docs (Scramble)
 
 ### Tecnologias
 
-- **Backend**: PHP 8.4, Laravel 12, MySQL 8.0
-- **Frontend**: Vue 3, TypeScript, Vite, Pinia
-- **Qualidade**: 100% testes passando, 0 bugs conhecidos
+- **Backend**: PHP 8.4, Laravel 12, MySQL 8.0.
+- **Frontend**: Vue 3, TypeScript, Vite, Pinia.
 - **Arquitetura**: Repository Pattern, Service Layer, API Resources
 - **DevOps**: Docker Compose, health checks, auto-setup
