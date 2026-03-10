@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { productsService } from '@/services/api';
+import { ProductsService } from '@/services/api';
 import { CACHE_TIME } from '@/config';
 import type { Product, CreateProductDTO } from '@/modules/products/types';
 
@@ -50,8 +50,8 @@ export const useProductsStore = defineStore('products', {
       this.error = null;
 
       try {
-        const response = await productsService.getAll();
-        this.products = response.data.data;
+        const response = await ProductsService.getAll();
+        this.products = response.data;
         this.lastFetch = now;
       } catch (err: unknown) {
         this.error = err instanceof Error ? err.message : 'Erro ao buscar produtos';
@@ -67,9 +67,9 @@ export const useProductsStore = defineStore('products', {
       this.error = null;
 
       try {
-        const response = await productsService.create(data);
-        this.products.push(response.data.data);
-        return response.data.data;
+        const response = await ProductsService.create(data);
+        this.products.push(response.data);
+        return response.data;
       } catch (err: unknown) {
         this.error = 'Erro ao criar produto';
         throw err;
@@ -83,12 +83,12 @@ export const useProductsStore = defineStore('products', {
       this.error = null;
 
       try {
-        const response = await productsService.update(id, data);
+        const response = await ProductsService.update(id, data);
         const index = this.products.findIndex(p => p.id === id);
         if (index !== -1) {
-          this.products[index] = response.data.data;
+          this.products[index] = response.data;
         }
-        return response.data.data;
+        return response.data;
       } catch (err: unknown) {
         this.error = 'Erro ao atualizar produto';
         throw err;
@@ -102,7 +102,7 @@ export const useProductsStore = defineStore('products', {
       this.error = null;
 
       try {
-        await productsService.delete(id);
+        await ProductsService.delete(id);
         this.products = this.products.filter(p => p.id !== id);
       } catch (err: unknown) {
         this.error = 'Erro ao deletar produto';

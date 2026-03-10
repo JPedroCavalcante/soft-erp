@@ -2,6 +2,8 @@ export const API_ENDPOINTS = {
   PRODUCTS: '/product/products',
   PURCHASES: '/purchase/purchases',
   SALES: '/sale/sales',
+  DASHBOARD: '/dashboard/metrics',
+  REPORTS: '/report/reports',
 } as const;
 
 export const API_CONFIG = {

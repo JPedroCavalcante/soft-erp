@@ -1,25 +1,30 @@
 import api from '@/core/api';
 import type { ApiResponse } from '@/core/types';
-import type { Sale, CreateSaleDTO } from '@/stores/sales';
+import type { Sale, CreateSaleDTO } from '@/modules/sales/types';
+import { API_ENDPOINTS } from '@/config/api';
 
-export const salesService = {
-  getAll() {
-    return api.get<ApiResponse<Sale[]>>('/sale/sales');
-  },
+export class SalesService {
+  static async getAll(): Promise<ApiResponse<Sale[]>> {
+    const response = await api.get<ApiResponse<Sale[]>>(API_ENDPOINTS.SALES);
+    return response.data;
+  }
 
-  getById(id: number) {
-    return api.get<ApiResponse<Sale>>(`/sale/sales/${id}`);
-  },
+  static async getById(id: number): Promise<ApiResponse<Sale>> {
+    const response = await api.get<ApiResponse<Sale>>(`${API_ENDPOINTS.SALES}/${id}`);
+    return response.data;
+  }
 
-  create(data: CreateSaleDTO) {
-    return api.post<ApiResponse<Sale>>('/sale/sales', data);
-  },
+  static async create(data: CreateSaleDTO): Promise<ApiResponse<Sale>> {
+    const response = await api.post<ApiResponse<Sale>>(API_ENDPOINTS.SALES, data);
+    return response.data;
+  }
 
-  cancel(id: number) {
-    return api.post<ApiResponse<Sale>>(`/sale/sales/${id}/cancel`);
-  },
+  static async cancel(id: number): Promise<ApiResponse<Sale>> {
+    const response = await api.post<ApiResponse<Sale>>(`${API_ENDPOINTS.SALES}/${id}/cancel`);
+    return response.data;
+  }
 
-  delete(id: number) {
-    return api.delete(`/sale/sales/${id}`);
-  },
-};
+  static async delete(id: number): Promise<void> {
+    await api.delete(`${API_ENDPOINTS.SALES}/${id}`);
+  }
+}

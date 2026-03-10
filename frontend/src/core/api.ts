@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG } from '@/config';
+import router from '@/router';
 
 const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
@@ -34,6 +35,11 @@ api.interceptors.response.use(
       console.error('Sem permissão para acessar este recurso');
     } else if (status === 401) {
       console.error('Não autenticado');
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user');
+      if (router.currentRoute.value.name !== 'login') {
+        router.push('/login');
+      }
     } else if (!error.response) {
       console.error('Erro de conexão com o servidor');
     }

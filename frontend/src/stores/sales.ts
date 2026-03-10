@@ -1,38 +1,8 @@
 import { defineStore } from 'pinia';
-import { salesService } from '@/services/api';
+import { SalesService } from '@/services/api';
 import { CACHE_TIME } from '@/config';
 import { useProductsStore } from './products';
-
-export interface SaleItem {
-  id?: number;
-  product_id: number;
-  product?: string;
-  quantity: number;
-  unit_sale_price: string | number;
-  historical_average_cost?: string;
-  profit?: string;
-}
-
-export interface Sale {
-  id: number;
-  customer: string;
-  total_amount: string;
-  total_profit: string;
-  is_canceled: boolean;
-  canceled_at: string | null;
-  items?: SaleItem[];
-  created_at: string;
-  updated_at: string;
-}
-
-export interface CreateSaleDTO {
-  customer: string;
-  items: Array<{
-    product_id: number;
-    quantity: number;
-    unit_sale_price: number;
-  }>;
-}
+import type { Sale, CreateSaleDTO } from '@/modules/sales/types';
 
 interface SalesState {
   sales: Sale[];
@@ -85,8 +55,8 @@ export const useSalesStore = defineStore('sales', {
       this.error = null;
 
       try {
-        const response = await salesService.getAll();
-        this.sales = response.data.data;
+        const response = await SalesService.getAll();
+        this.sales = response.data;
         this.lastFetch = now;
       } catch (err: unknown) {
         this.error = err instanceof Error ? err.message : 'Erro ao buscar vendas';
@@ -102,13 +72,13 @@ export const useSalesStore = defineStore('sales', {
       this.error = null;
 
       try {
-        const response = await salesService.create(data);
-        this.sales.unshift(response.data.data);
+        const response = await SalesService.create(data);
+        this.sales.unshift(response.data);
 
         const productsStore = useProductsStore();
         await productsStore.fetchProducts(true);
 
-        return response.data.data;
+        return response.data;
       } catch (err: unknown) {
         this.error = 'Erro ao criar venda';
         throw err;
@@ -122,8 +92,8 @@ export const useSalesStore = defineStore('sales', {
       this.error = null;
 
       try {
-        const response = await salesService.cancel(id);
-        const canceledSale = response.data.data;
+        const response = await SalesService.cancel(id);
+        const canceledSale = response.data;
 
         const index = this.sales.findIndex(s => s.id === id);
         if (index !== -1) {
@@ -147,7 +117,7 @@ export const useSalesStore = defineStore('sales', {
       this.error = null;
 
       try {
-        await salesService.delete(id);
+        await SalesService.delete(id);
         this.sales = this.sales.filter(s => s.id !== id);
       } catch (err: unknown) {
         this.error = 'Erro ao deletar venda';

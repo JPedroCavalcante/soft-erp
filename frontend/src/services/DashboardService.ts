@@ -1,5 +1,6 @@
 import api from '@/core/api'
 import type { ApiResponse } from '@/core/types/api'
+import { API_ENDPOINTS } from '@/config/api'
 
 export interface DashboardMetrics {
   sales_this_month: string
@@ -25,7 +26,7 @@ export interface DashboardMetrics {
 
 export class DashboardService {
   static async getMetrics(): Promise<ApiResponse<DashboardMetrics>> {
-    const response = await api.get<ApiResponse<DashboardMetrics>>('/dashboard/metrics')
+    const response = await api.get<ApiResponse<DashboardMetrics>>(API_ENDPOINTS.DASHBOARD)
     return response.data
   }
 }

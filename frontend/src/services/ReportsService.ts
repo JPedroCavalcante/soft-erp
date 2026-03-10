@@ -1,5 +1,6 @@
 import api from '@/core/api'
 import type { ApiResponse } from '@/core/types/api'
+import { API_ENDPOINTS } from '@/config/api'
 
 export interface SalesReport {
   id: number
@@ -57,33 +58,33 @@ export interface ExportRequest {
 
 export class ReportsService {
   static async getSalesReport(filters: ReportFilters): Promise<ApiResponse<SalesReport[]>> {
-    const response = await api.get<ApiResponse<SalesReport[]>>('/report/reports/sales', {
+    const response = await api.get<ApiResponse<SalesReport[]>>(`${API_ENDPOINTS.REPORTS}/sales`, {
       params: filters
     })
     return response.data
   }
 
   static async getPurchasesReport(filters: ReportFilters): Promise<ApiResponse<PurchasesReport[]>> {
-    const response = await api.get<ApiResponse<PurchasesReport[]>>('/report/reports/purchases', {
+    const response = await api.get<ApiResponse<PurchasesReport[]>>(`${API_ENDPOINTS.REPORTS}/purchases`, {
       params: filters
     })
     return response.data
   }
 
   static async getProfitReport(filters: ReportFilters): Promise<ApiResponse<ProfitReport[]>> {
-    const response = await api.get<ApiResponse<ProfitReport[]>>('/report/reports/profit', {
+    const response = await api.get<ApiResponse<ProfitReport[]>>(`${API_ENDPOINTS.REPORTS}/profit`, {
       params: filters
     })
     return response.data
   }
 
   static async getStockReport(): Promise<ApiResponse<StockReport[]>> {
-    const response = await api.get<ApiResponse<StockReport[]>>('/report/reports/stock')
+    const response = await api.get<ApiResponse<StockReport[]>>(`${API_ENDPOINTS.REPORTS}/stock`)
     return response.data
   }
 
   static async exportReport(request: ExportRequest): Promise<Blob> {
-    const response = await api.post('/report/reports/export', request, {
+    const response = await api.post(`${API_ENDPOINTS.REPORTS}/export`, request, {
       responseType: 'blob'
     })
     return response.data

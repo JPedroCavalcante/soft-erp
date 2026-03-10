@@ -1,21 +1,25 @@
 import api from '@/core/api';
 import type { ApiResponse } from '@/core/types';
-import type { Purchase, CreatePurchaseDTO } from '@/stores/purchases';
+import type { Purchase, CreatePurchaseDTO } from '@/modules/purchases/types';
+import { API_ENDPOINTS } from '@/config/api';
 
-export const purchasesService = {
-  getAll() {
-    return api.get<ApiResponse<Purchase[]>>('/purchase/purchases');
-  },
+export class PurchasesService {
+  static async getAll(): Promise<ApiResponse<Purchase[]>> {
+    const response = await api.get<ApiResponse<Purchase[]>>(API_ENDPOINTS.PURCHASES);
+    return response.data;
+  }
 
-  getById(id: number) {
-    return api.get<ApiResponse<Purchase>>(`/purchase/purchases/${id}`);
-  },
+  static async getById(id: number): Promise<ApiResponse<Purchase>> {
+    const response = await api.get<ApiResponse<Purchase>>(`${API_ENDPOINTS.PURCHASES}/${id}`);
+    return response.data;
+  }
 
-  create(data: CreatePurchaseDTO) {
-    return api.post<ApiResponse<Purchase>>('/purchase/purchases', data);
-  },
+  static async create(data: CreatePurchaseDTO): Promise<ApiResponse<Purchase>> {
+    const response = await api.post<ApiResponse<Purchase>>(API_ENDPOINTS.PURCHASES, data);
+    return response.data;
+  }
 
-  delete(id: number) {
-    return api.delete(`/purchase/purchases/${id}`);
-  },
-};
+  static async delete(id: number): Promise<void> {
+    await api.delete(`${API_ENDPOINTS.PURCHASES}/${id}`);
+  }
+}

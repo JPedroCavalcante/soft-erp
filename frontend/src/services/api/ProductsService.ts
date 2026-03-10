@@ -1,25 +1,30 @@
 import api from '@/core/api';
 import type { ApiResponse } from '@/core/types';
 import type { Product, CreateProductDTO } from '@/modules/products/types';
+import { API_ENDPOINTS } from '@/config/api';
 
-export const productsService = {
-  getAll() {
-    return api.get<ApiResponse<Product[]>>('/product/products');
-  },
+export class ProductsService {
+  static async getAll(): Promise<ApiResponse<Product[]>> {
+    const response = await api.get<ApiResponse<Product[]>>(API_ENDPOINTS.PRODUCTS);
+    return response.data;
+  }
 
-  getById(id: number) {
-    return api.get<ApiResponse<Product>>(`/product/products/${id}`);
-  },
+  static async getById(id: number): Promise<ApiResponse<Product>> {
+    const response = await api.get<ApiResponse<Product>>(`${API_ENDPOINTS.PRODUCTS}/${id}`);
+    return response.data;
+  }
 
-  create(data: CreateProductDTO) {
-    return api.post<ApiResponse<Product>>('/product/products', data);
-  },
+  static async create(data: CreateProductDTO): Promise<ApiResponse<Product>> {
+    const response = await api.post<ApiResponse<Product>>(API_ENDPOINTS.PRODUCTS, data);
+    return response.data;
+  }
 
-  update(id: number, data: Partial<CreateProductDTO>) {
-    return api.put<ApiResponse<Product>>(`/product/products/${id}`, data);
-  },
+  static async update(id: number, data: Partial<CreateProductDTO>): Promise<ApiResponse<Product>> {
+    const response = await api.put<ApiResponse<Product>>(`${API_ENDPOINTS.PRODUCTS}/${id}`, data);
+    return response.data;
+  }
 
-  delete(id: number) {
-    return api.delete(`/product/products/${id}`);
-  },
-};
+  static async delete(id: number): Promise<void> {
+    await api.delete(`${API_ENDPOINTS.PRODUCTS}/${id}`);
+  }
+}
