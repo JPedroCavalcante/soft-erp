@@ -235,5 +235,239 @@ class SaleSeeder extends Seeder
             'total_amount' => $total5,
             'total_profit' => $profit5,
         ]);
+
+        $yesterday = now()->subDay();
+
+        $saleYesterday1 = Sale::create([
+            'customer' => 'Cliente Ontem 1',
+            'total_amount' => 0,
+            'total_profit' => 0,
+            'created_at' => $yesterday,
+            'updated_at' => $yesterday,
+        ]);
+
+        $itemsYesterday1 = [
+            ['product_id' => 2, 'quantity' => 2, 'unit_sale_price' => 300.00],
+        ];
+
+        $totalY1 = 0;
+        $profitY1 = 0;
+
+        foreach ($itemsYesterday1 as $item) {
+            $product = Product::find($item['product_id']);
+
+            if ($product->stock < $item['quantity']) {
+                continue;
+            }
+
+            $historicalCost = (float) $product->average_cost;
+            $profit = ($item['unit_sale_price'] - $historicalCost) * $item['quantity'];
+
+            $saleYesterday1->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_sale_price' => $item['unit_sale_price'],
+                'historical_average_cost' => $historicalCost,
+                'profit' => $profit,
+            ]);
+
+            $product->update([
+                'stock' => $product->stock - $item['quantity'],
+            ]);
+
+            $totalY1 += $item['unit_sale_price'] * $item['quantity'];
+            $profitY1 += $profit;
+        }
+
+        $saleYesterday1->update([
+            'total_amount' => $totalY1,
+            'total_profit' => $profitY1,
+        ]);
+
+        $saleYesterday2 = Sale::create([
+            'customer' => 'Cliente Ontem 2',
+            'total_amount' => 0,
+            'total_profit' => 0,
+            'created_at' => $yesterday,
+            'updated_at' => $yesterday,
+        ]);
+
+        $itemsYesterday2 = [
+            ['product_id' => 4, 'quantity' => 3, 'unit_sale_price' => 140.00],
+        ];
+
+        $totalY2 = 0;
+        $profitY2 = 0;
+
+        foreach ($itemsYesterday2 as $item) {
+            $product = Product::find($item['product_id']);
+
+            if ($product->stock < $item['quantity']) {
+                continue;
+            }
+
+            $historicalCost = (float) $product->average_cost;
+            $profit = ($item['unit_sale_price'] - $historicalCost) * $item['quantity'];
+
+            $saleYesterday2->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_sale_price' => $item['unit_sale_price'],
+                'historical_average_cost' => $historicalCost,
+                'profit' => $profit,
+            ]);
+
+            $product->update([
+                'stock' => $product->stock - $item['quantity'],
+            ]);
+
+            $totalY2 += $item['unit_sale_price'] * $item['quantity'];
+            $profitY2 += $profit;
+        }
+
+        $saleYesterday2->update([
+            'total_amount' => $totalY2,
+            'total_profit' => $profitY2,
+        ]);
+
+        $today = now();
+
+        $saleToday1 = Sale::create([
+            'customer' => 'Cliente Hoje 1',
+            'total_amount' => 0,
+            'total_profit' => 0,
+            'created_at' => $today,
+            'updated_at' => $today,
+        ]);
+
+        $itemsToday1 = [
+            ['product_id' => 5, 'quantity' => 3, 'unit_sale_price' => 600.00],
+        ];
+
+        $totalT1 = 0;
+        $profitT1 = 0;
+
+        foreach ($itemsToday1 as $item) {
+            $product = Product::find($item['product_id']);
+
+            if ($product->stock < $item['quantity']) {
+                continue;
+            }
+
+            $historicalCost = (float) $product->average_cost;
+            $profit = ($item['unit_sale_price'] - $historicalCost) * $item['quantity'];
+
+            $saleToday1->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_sale_price' => $item['unit_sale_price'],
+                'historical_average_cost' => $historicalCost,
+                'profit' => $profit,
+            ]);
+
+            $product->update([
+                'stock' => $product->stock - $item['quantity'],
+            ]);
+
+            $totalT1 += $item['unit_sale_price'] * $item['quantity'];
+            $profitT1 += $profit;
+        }
+
+        $saleToday1->update([
+            'total_amount' => $totalT1,
+            'total_profit' => $profitT1,
+        ]);
+
+        $saleToday2 = Sale::create([
+            'customer' => 'Cliente Hoje 2',
+            'total_amount' => 0,
+            'total_profit' => 0,
+            'created_at' => $today,
+            'updated_at' => $today,
+        ]);
+
+        $itemsToday2 = [
+            ['product_id' => 6, 'quantity' => 4, 'unit_sale_price' => 380.00],
+        ];
+
+        $totalT2 = 0;
+        $profitT2 = 0;
+
+        foreach ($itemsToday2 as $item) {
+            $product = Product::find($item['product_id']);
+
+            if ($product->stock < $item['quantity']) {
+                continue;
+            }
+
+            $historicalCost = (float) $product->average_cost;
+            $profit = ($item['unit_sale_price'] - $historicalCost) * $item['quantity'];
+
+            $saleToday2->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_sale_price' => $item['unit_sale_price'],
+                'historical_average_cost' => $historicalCost,
+                'profit' => $profit,
+            ]);
+
+            $product->update([
+                'stock' => $product->stock - $item['quantity'],
+            ]);
+
+            $totalT2 += $item['unit_sale_price'] * $item['quantity'];
+            $profitT2 += $profit;
+        }
+
+        $saleToday2->update([
+            'total_amount' => $totalT2,
+            'total_profit' => $profitT2,
+        ]);
+
+        $saleToday3 = Sale::create([
+            'customer' => 'Cliente Hoje 3',
+            'total_amount' => 0,
+            'total_profit' => 0,
+            'created_at' => $today,
+            'updated_at' => $today,
+        ]);
+
+        $itemsToday3 = [
+            ['product_id' => 7, 'quantity' => 5, 'unit_sale_price' => 160.00],
+        ];
+
+        $totalT3 = 0;
+        $profitT3 = 0;
+
+        foreach ($itemsToday3 as $item) {
+            $product = Product::find($item['product_id']);
+
+            if ($product->stock < $item['quantity']) {
+                continue;
+            }
+
+            $historicalCost = (float) $product->average_cost;
+            $profit = ($item['unit_sale_price'] - $historicalCost) * $item['quantity'];
+
+            $saleToday3->items()->create([
+                'product_id' => $item['product_id'],
+                'quantity' => $item['quantity'],
+                'unit_sale_price' => $item['unit_sale_price'],
+                'historical_average_cost' => $historicalCost,
+                'profit' => $profit,
+            ]);
+
+            $product->update([
+                'stock' => $product->stock - $item['quantity'],
+            ]);
+
+            $totalT3 += $item['unit_sale_price'] * $item['quantity'];
+            $profitT3 += $profit;
+        }
+
+        $saleToday3->update([
+            'total_amount' => $totalT3,
+            'total_profit' => $profitT3,
+        ]);
     }
 }
