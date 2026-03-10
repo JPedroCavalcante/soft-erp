@@ -23,6 +23,8 @@ import {
   AlertTriangle,
   ChevronLeft,
   ChevronRight,
+  PieChart,
+  BarChart3,
 } from 'lucide-vue-next';
 
 type IconName =
@@ -38,7 +40,9 @@ type IconName =
   | 'trash'
   | 'exclamation-triangle'
   | 'chevron-left'
-  | 'chevron-right';
+  | 'chevron-right'
+  | 'chart-pie'
+  | 'chart-bar';
 
 interface Props {
   name: IconName;
@@ -67,6 +71,8 @@ const iconMap = {
   'exclamation-triangle': AlertTriangle,
   'chevron-left': ChevronLeft,
   'chevron-right': ChevronRight,
+  'chart-pie': PieChart,
+  'chart-bar': BarChart3,
 };
 
 const iconComponent = computed(() => {

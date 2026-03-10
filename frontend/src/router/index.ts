@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw, NavigationGuardNext, RouteLocationNormalized } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import dashboardRoutes from '@/modules/dashboard/routes';
+import reportRoutes from '@/modules/reports/routes';
 import productRoutes from '@/modules/products/routes';
 import purchasesRoutes from '@/modules/purchases/routes';
 import salesRoutes from '@/modules/sales/routes';
@@ -15,8 +17,10 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
-    redirect: '/products',
+    redirect: '/dashboard',
   },
+  ...dashboardRoutes,
+  ...reportRoutes,
   ...productRoutes,
   ...purchasesRoutes,
   ...salesRoutes,

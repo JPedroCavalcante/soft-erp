@@ -40,6 +40,30 @@
 
       <nav class="sidebar-nav">
         <router-link
+          to="/dashboard"
+          class="nav-item"
+          @click="isMobileMenuOpen = false"
+          :title="isCollapsed ? 'Dashboard' : ''"
+        >
+          <Icon name="chart-pie" :size="20" />
+          <Transition name="fade-slide">
+            <span v-if="!isCollapsed || isMobile" class="nav-text">Dashboard</span>
+          </Transition>
+        </router-link>
+
+        <router-link
+          to="/reports"
+          class="nav-item"
+          @click="isMobileMenuOpen = false"
+          :title="isCollapsed ? 'Relatórios' : ''"
+        >
+          <Icon name="chart-bar" :size="20" />
+          <Transition name="fade-slide">
+            <span v-if="!isCollapsed || isMobile" class="nav-text">Relatórios</span>
+          </Transition>
+        </router-link>
+
+        <router-link
           to="/products"
           class="nav-item"
           @click="isMobileMenuOpen = false"
@@ -137,9 +161,11 @@ const isMobile = ref(false);
 
 const pageTitle = computed(() => {
   const titles: Record<string, string> = {
-    products: 'Produtos',
-    purchases: 'Compras',
-    sales: 'Vendas',
+    Dashboard: 'Dashboard',
+    Reports: 'Relatórios',
+    Products: 'Produtos',
+    Purchases: 'Compras',
+    Sales: 'Vendas',
   };
   return titles[route.name as string] || 'Dashboard';
 });
