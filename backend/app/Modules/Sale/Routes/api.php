@@ -7,4 +7,5 @@ Route::prefix('sales')->group(function () {
     Route::get('/', [SaleController::class, 'index']);
     Route::post('/', [SaleController::class, 'store']);
     Route::get('/{id}', [SaleController::class, 'show']);
+    Route::delete('/{id}', [SaleController::class, 'destroy']);
 });

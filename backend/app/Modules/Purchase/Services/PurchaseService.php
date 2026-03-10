@@ -52,6 +52,24 @@ class PurchaseService
         return $purchase->load('items.product');
     }
 
+    public function destroy(int $id): void
+    {
+        DB::transaction(function () use ($id) {
+            $purchase = $this->repository->find($id);
+            $purchase->load('items');
+
+            foreach ($purchase->items as $item) {
+                $product = $this->lockProduct($item->product_id);
+
+                $product->update([
+                    'stock' => $product->stock - $item->quantity,
+                ]);
+            }
+
+            $this->repository->delete($id);
+        });
+    }
+
     private function processPurchaseItem(Purchase $purchase, array $item): float
     {
         $purchase->items()->create([

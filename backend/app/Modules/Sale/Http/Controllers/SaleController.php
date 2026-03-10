@@ -154,4 +154,10 @@ class SaleController extends Controller
         $sale = $this->service->show($id);
         return new SaleResource($sale);
     }
+
+    public function destroy(int $id)
+    {
+        $this->service->destroy($id);
+        return response()->json(['message' => 'Venda excluída com sucesso'], 200);
+    }
 }

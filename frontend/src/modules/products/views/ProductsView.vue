@@ -1,10 +1,9 @@
 <template>
   <div class="products-view">
-    <!-- Header com botão de adicionar -->
     <div class="view-header">
       <div class="header-content">
         <h1 class="view-title">Produtos</h1>
-        <p class="view-subtitle">{{ products.length }} {{ products.length === 1 ? 'produto cadastrado' : 'produtos cadastrados' }}</p>
+        <p class="view-subtitle">{{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'produto' : 'produtos' }}</p>
       </div>
       <button class="btn-add" @click="openCreateModal">
         <Icon name="plus" :size="20" />
@@ -12,7 +11,21 @@
       </button>
     </div>
 
-    <!-- Lista de produtos -->
+    <div v-if="products.length > 0" class="filters">
+      <input
+        v-model="searchQuery"
+        type="text"
+        placeholder="Buscar por nome..."
+        class="search-input"
+      />
+      <select v-model="stockFilter" class="filter-select">
+        <option value="all">Todos</option>
+        <option value="in-stock">Em estoque</option>
+        <option value="low-stock">Estoque baixo</option>
+        <option value="out-of-stock">Sem estoque</option>
+      </select>
+    </div>
+
     <div v-if="loading && products.length === 0" class="loading-state">
       <div class="spinner-large"></div>
       <p>Carregando produtos...</p>
@@ -29,7 +42,7 @@
     </div>
 
     <div v-else class="products-grid">
-      <div v-for="product in products" :key="product.id" class="product-card">
+      <div v-for="product in filteredProducts" :key="product.id" class="product-card">
         <div class="card-header">
           <h3 class="product-name">{{ product.name }}</h3>
           <div class="card-actions">
@@ -71,7 +84,6 @@
       </div>
     </div>
 
-    <!-- Modal de Criar -->
     <Modal
       v-model="showCreateModal"
       title="Novo Produto"
@@ -100,7 +112,6 @@
       </template>
     </Modal>
 
-    <!-- Modal de Editar -->
     <Modal
       v-model="showEditModal"
       title="Editar Produto"
@@ -131,7 +142,6 @@
       </template>
     </Modal>
 
-    <!-- Modal de Confirmação de Exclusão -->
     <Modal
       v-model="showDeleteModal"
       title="Confirmar Exclusão"
@@ -169,7 +179,6 @@
       </template>
     </Modal>
 
-    <!-- Floating Action Button (Mobile) -->
     <button class="fab" @click="openCreateModal" title="Adicionar Produto">
       <Icon name="plus" :size="24" />
     </button>
@@ -186,10 +195,34 @@ import ProductForm from '../components/ProductForm.vue';
 import type { Product, CreateProductDTO } from '../types';
 
 const productsStore = useProductsStore();
-const { showSuccess, showError } = useToast();
+const toast = useToast();
 
 const products = computed(() => productsStore.products);
 const loading = computed(() => productsStore.loading);
+
+const searchQuery = ref('');
+const stockFilter = ref('all');
+
+const filteredProducts = computed(() => {
+  let result = products.value;
+
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    result = result.filter((p: Product) => p.name.toLowerCase().includes(query));
+  }
+
+  if (stockFilter.value !== 'all') {
+    if (stockFilter.value === 'in-stock') {
+      result = result.filter((p: Product) => p.stock > 10);
+    } else if (stockFilter.value === 'low-stock') {
+      result = result.filter((p: Product) => p.stock > 0 && p.stock <= 10);
+    } else if (stockFilter.value === 'out-of-stock') {
+      result = result.filter((p: Product) => p.stock === 0);
+    }
+  }
+
+  return result;
+});
 
 const showCreateModal = ref(false);
 const showEditModal = ref(false);
@@ -239,10 +272,10 @@ const submitEditForm = () => {
 const handleCreate = async (data: CreateProductDTO) => {
   try {
     await productsStore.createProduct(data);
-    showSuccess('Produto criado com sucesso!');
+    toast.success('Produto criado com sucesso!');
     showCreateModal.value = false;
   } catch (err: unknown) {
-    showError('Erro ao criar produto');
+    toast.error('Erro ao criar produto');
     console.error(err);
   }
 };
@@ -252,11 +285,11 @@ const handleUpdate = async (data: CreateProductDTO) => {
 
   try {
     await productsStore.updateProduct(editingProduct.value.id, data);
-    showSuccess('Produto atualizado com sucesso!');
+    toast.success('Produto atualizado com sucesso!');
     showEditModal.value = false;
     editingProduct.value = null;
   } catch (err: unknown) {
-    showError('Erro ao atualizar produto');
+    toast.error('Erro ao atualizar produto');
     console.error(err);
   }
 };
@@ -266,11 +299,11 @@ const handleDelete = async () => {
 
   try {
     await productsStore.deleteProduct(deletingProduct.value.id);
-    showSuccess('Produto excluído com sucesso!');
+    toast.success('Produto excluído com sucesso!');
     showDeleteModal.value = false;
     deletingProduct.value = null;
   } catch (err: unknown) {
-    showError('Erro ao excluir produto');
+    toast.error('Erro ao excluir produto');
     console.error(err);
   }
 };
@@ -317,6 +350,40 @@ onMounted(() => {
   font-size: 14px;
   color: var(--gray-600);
   margin: 0;
+}
+
+.filters {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.search-input,
+.filter-select {
+  padding: 12px 16px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  font-size: 14px;
+  transition: all var(--transition-base);
+  background: white;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.filter-select {
+  min-width: 160px;
+  cursor: pointer;
 }
 
 .btn-add {

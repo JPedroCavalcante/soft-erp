@@ -57,6 +57,24 @@ class SaleService
         return $sale->load('items.product');
     }
 
+    public function destroy(int $id): void
+    {
+        DB::transaction(function () use ($id) {
+            $sale = $this->repository->find($id);
+            $sale->load('items');
+
+            foreach ($sale->items as $item) {
+                $product = $this->lockProduct($item->product_id);
+
+                $product->update([
+                    'stock' => $product->stock + $item->quantity,
+                ]);
+            }
+
+            $this->repository->delete($id);
+        });
+    }
+
     private function processSaleItem(Sale $sale, array $item): array
     {
         $product = $this->lockProduct($item['product_id']);

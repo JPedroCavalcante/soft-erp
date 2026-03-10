@@ -133,4 +133,10 @@ class PurchaseController extends Controller
         $purchase = $this->service->show($id);
         return new PurchaseResource($purchase);
     }
+
+    public function destroy(int $id)
+    {
+        $this->service->destroy($id);
+        return response()->json(['message' => 'Compra excluída com sucesso'], 200);
+    }
 }
