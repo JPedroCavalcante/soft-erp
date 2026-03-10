@@ -4,7 +4,7 @@ export interface FormOptions {
   resetOnSuccess?: boolean;
 }
 
-export function useForm<T extends Record<string, any>>(
+export function useForm<T extends Record<string, unknown>>(
   initialData: T,
   options: FormOptions = {}
 ) {

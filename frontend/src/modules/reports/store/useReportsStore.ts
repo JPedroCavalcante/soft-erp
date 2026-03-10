@@ -16,8 +16,9 @@ export const useReportsStore = defineStore('reports', () => {
     try {
       const response = await ReportsService.getSalesReport(filters)
       salesData.value = response.data
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Erro ao carregar relatório de vendas'
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } }
+      error.value = axiosError.response?.data?.message || 'Erro ao carregar relatório de vendas'
       throw err
     } finally {
       loading.value = false
@@ -30,8 +31,9 @@ export const useReportsStore = defineStore('reports', () => {
     try {
       const response = await ReportsService.getPurchasesReport(filters)
       purchasesData.value = response.data
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Erro ao carregar relatório de compras'
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } }
+      error.value = axiosError.response?.data?.message || 'Erro ao carregar relatório de compras'
       throw err
     } finally {
       loading.value = false
@@ -44,8 +46,9 @@ export const useReportsStore = defineStore('reports', () => {
     try {
       const response = await ReportsService.getProfitReport(filters)
       profitData.value = response.data
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Erro ao carregar relatório de lucro'
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } }
+      error.value = axiosError.response?.data?.message || 'Erro ao carregar relatório de lucro'
       throw err
     } finally {
       loading.value = false
@@ -58,8 +61,9 @@ export const useReportsStore = defineStore('reports', () => {
     try {
       const response = await ReportsService.getStockReport()
       stockData.value = response.data
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Erro ao carregar relatório de estoque'
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } }
+      error.value = axiosError.response?.data?.message || 'Erro ao carregar relatório de estoque'
       throw err
     } finally {
       loading.value = false
@@ -80,8 +84,9 @@ export const useReportsStore = defineStore('reports', () => {
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Erro ao exportar relatório'
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } }
+      error.value = axiosError.response?.data?.message || 'Erro ao exportar relatório'
       throw err
     } finally {
       loading.value = false

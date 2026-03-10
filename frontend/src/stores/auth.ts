@@ -26,8 +26,9 @@ export const useAuthStore = defineStore('auth', {
         this.user = user;
         this.isAuthenticated = true;
         return true;
-      } catch (err: any) {
-        this.error = err.response?.data?.message || 'Erro ao fazer login';
+      } catch (err: unknown) {
+        const error = err as { response?: { data?: { message?: string } } };
+        this.error = error.response?.data?.message || 'Erro ao fazer login';
         this.isAuthenticated = false;
         this.user = null;
         localStorage.removeItem(TOKEN_KEY);

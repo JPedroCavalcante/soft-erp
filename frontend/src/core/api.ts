@@ -1,4 +1,4 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG } from '@/config';
 import router from '@/router';
 
@@ -23,7 +23,7 @@ api.interceptors.request.use(
 );
 
 api.interceptors.response.use(
-  (response: any) => response,
+  (response: AxiosResponse) => response,
   (error: AxiosError) => {
     const status = error.response?.status;
 

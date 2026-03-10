@@ -13,8 +13,9 @@ export const useDashboardStore = defineStore('dashboard', () => {
     try {
       const response = await DashboardService.getMetrics()
       metrics.value = response.data
-    } catch (err: any) {
-      error.value = err.response?.data?.message || 'Erro ao carregar métricas'
+    } catch (err: unknown) {
+      const axiosError = err as { response?: { data?: { message?: string } } }
+      error.value = axiosError.response?.data?.message || 'Erro ao carregar métricas'
       throw err
     } finally {
       loading.value = false
