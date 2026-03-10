@@ -10,7 +10,6 @@ class SaleSeeder extends Seeder
 {
     public function run(): void
     {
-        // Venda 1: Cliente varejo com lucro positivo
         $sale1 = Sale::create([
             'customer' => 'Maria Silva Santos',
             'total_amount' => 0,
@@ -18,8 +17,8 @@ class SaleSeeder extends Seeder
         ]);
 
         $items1 = [
-            ['product_id' => 1, 'quantity' => 3, 'unit_sale_price' => 200.00],  // Lucro
-            ['product_id' => 2, 'quantity' => 2, 'unit_sale_price' => 280.00],  // Lucro
+            ['product_id' => 1, 'quantity' => 3, 'unit_sale_price' => 200.00],
+            ['product_id' => 2, 'quantity' => 2, 'unit_sale_price' => 280.00],
         ];
 
         $total1 = 0;
@@ -29,7 +28,7 @@ class SaleSeeder extends Seeder
             $product = Product::find($item['product_id']);
 
             if ($product->stock < $item['quantity']) {
-                continue; // Pular se não houver estoque suficiente
+                continue;
             }
 
             $historicalCost = (float) $product->average_cost;
@@ -56,7 +55,6 @@ class SaleSeeder extends Seeder
             'total_profit' => $profit1,
         ]);
 
-        // Venda 2: Cliente corporativo com lucro
         $sale2 = Sale::create([
             'customer' => 'Empresa Tech Solutions Ltda',
             'total_amount' => 0,
@@ -64,8 +62,8 @@ class SaleSeeder extends Seeder
         ]);
 
         $items2 = [
-            ['product_id' => 5, 'quantity' => 4, 'unit_sale_price' => 550.00],  // Lucro
-            ['product_id' => 6, 'quantity' => 5, 'unit_sale_price' => 350.00],  // Lucro
+            ['product_id' => 5, 'quantity' => 4, 'unit_sale_price' => 550.00],
+            ['product_id' => 6, 'quantity' => 5, 'unit_sale_price' => 350.00],
         ];
 
         $total2 = 0;
@@ -102,7 +100,6 @@ class SaleSeeder extends Seeder
             'total_profit' => $profit2,
         ]);
 
-        // Venda 3: Promoção com PREJUÍZO (preço abaixo do custo)
         $sale3 = Sale::create([
             'customer' => 'João Oliveira Costa',
             'total_amount' => 0,
@@ -110,8 +107,8 @@ class SaleSeeder extends Seeder
         ]);
 
         $items3 = [
-            ['product_id' => 3, 'quantity' => 2, 'unit_sale_price' => 350.00],  // PREJUÍZO (custo ~385)
-            ['product_id' => 7, 'quantity' => 3, 'unit_sale_price' => 150.00],  // PREJUÍZO (custo ~175)
+            ['product_id' => 3, 'quantity' => 2, 'unit_sale_price' => 350.00],
+            ['product_id' => 7, 'quantity' => 3, 'unit_sale_price' => 150.00],
         ];
 
         $total3 = 0;
@@ -148,7 +145,6 @@ class SaleSeeder extends Seeder
             'total_profit' => $profit3,
         ]);
 
-        // Venda 4: Mix de lucro e prejuízo
         $sale4 = Sale::create([
             'customer' => 'Ana Paula Ferreira',
             'total_amount' => 0,
@@ -156,8 +152,8 @@ class SaleSeeder extends Seeder
         ]);
 
         $items4 = [
-            ['product_id' => 9, 'quantity' => 2, 'unit_sale_price' => 600.00],  // Lucro
-            ['product_id' => 10, 'quantity' => 5, 'unit_sale_price' => 100.00], // PREJUÍZO (custo ~125)
+            ['product_id' => 9, 'quantity' => 2, 'unit_sale_price' => 600.00],
+            ['product_id' => 10, 'quantity' => 5, 'unit_sale_price' => 100.00],
         ];
 
         $total4 = 0;
@@ -194,7 +190,6 @@ class SaleSeeder extends Seeder
             'total_profit' => $profit4,
         ]);
 
-        // Venda 5: Cliente atacado com bom lucro
         $sale5 = Sale::create([
             'customer' => 'Distribuidora MegaStore Ltda',
             'total_amount' => 0,
@@ -202,9 +197,9 @@ class SaleSeeder extends Seeder
         ]);
 
         $items5 = [
-            ['product_id' => 4, 'quantity' => 6, 'unit_sale_price' => 130.00],  // Lucro
-            ['product_id' => 8, 'quantity' => 3, 'unit_sale_price' => 400.00],  // Lucro
-            ['product_id' => 1, 'quantity' => 2, 'unit_sale_price' => 190.00],  // Lucro
+            ['product_id' => 4, 'quantity' => 6, 'unit_sale_price' => 130.00],
+            ['product_id' => 8, 'quantity' => 3, 'unit_sale_price' => 400.00],
+            ['product_id' => 1, 'quantity' => 2, 'unit_sale_price' => 190.00],
         ];
 
         $total5 = 0;
