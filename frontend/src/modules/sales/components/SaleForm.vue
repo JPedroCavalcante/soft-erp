@@ -143,9 +143,27 @@ const getProductStock = (productId: number): number => {
 
 const updateItemPrice = (index: number) => {
   const item = formData.value.items[index];
+  if (!item.product_id) return;
+  const existingItemIndex = formData.value.items.findIndex(
+    (itm: { product_id: number }, idx: number) => idx !== index && itm.product_id === item.product_id
+  );
+
+  if (existingItemIndex !== -1) {
+    const currentItem = formData.value.items[index];
+    formData.value.items[existingItemIndex].quantity += currentItem.quantity;
+
+    formData.value.items.splice(index, 1);
+
+    error.value = 'Produto já estava na lista. As quantidades foram somadas automaticamente.';
+    setTimeout(() => {
+      error.value = null;
+    }, 3000);
+    return;
+  }
+
   const product = productsStore.products.find(p => p.id === item.product_id);
   if (product) {
-    item.unit_sale_price = parseFloat(product.sale_price);
+    item.unit_sale_price = product.sale_price;
   }
 };
 

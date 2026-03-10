@@ -28,7 +28,7 @@
         <div v-for="(item, index) in formData.items" :key="index" class="item-row">
           <div class="form-group">
             <label>Produto *</label>
-            <select v-model="item.product_id" :disabled="loading" required>
+            <select v-model="item.product_id" :disabled="loading" required @change="handleProductChange(index, item.product_id)">
               <option value="">Selecione um produto</option>
               <option v-for="product in products" :key="product.id" :value="product.id">
                 {{ product.name }} (Estoque: {{ product.stock }})
@@ -123,6 +123,23 @@ watch(
     }
   }
 );
+
+const handleProductChange = (index: number, productId: number) => {
+  if (!productId) return;
+  const existingItemIndex = formData.value.items.findIndex(
+    (item: { product_id: number }, idx: number) => idx !== index && item.product_id === productId
+  );
+
+  if (existingItemIndex !== -1) {
+    const currentItem = formData.value.items[index];
+    formData.value.items[existingItemIndex].quantity += currentItem.quantity;
+    formData.value.items.splice(index, 1);
+    error.value = 'Produto já estava na lista. As quantidades foram somadas automaticamente.';
+    setTimeout(() => {
+      error.value = null;
+    }, 3000);
+  }
+};
 
 const addItem = () => {
   formData.value.items.push({ product_id: 0, quantity: 1, unit_price: 0 });
