@@ -59,7 +59,7 @@
         <div class="login-footer">
           <div class="demo-info">
             <p><strong>Credenciais para teste:</strong></p>
-            <p class="credentials">admin@softerp.com • password</p>
+            <p class="credentials">E-mail: admin@softerp.com <br/> Senha: admin</p>
           </div>
         </div>
       </div>

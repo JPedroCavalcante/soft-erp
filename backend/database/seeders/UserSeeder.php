@@ -14,7 +14,7 @@ class UserSeeder extends Seeder
             ['email' => 'admin@softerp.com'],
             [
                 'name' => 'Administrador',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('admin'),
             ]
         );
 
@@ -22,7 +22,7 @@ class UserSeeder extends Seeder
             ['email' => 'user@softerp.com'],
             [
                 'name' => 'Usuário Teste',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('admin'),
             ]
         );
     }
