@@ -118,6 +118,14 @@ return [
             'replace_placeholders' => true,
         ],
 
+        'repository' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/repository.log'),
+            'level' => env('LOG_LEVEL', 'debug'),
+            'days' => env('LOG_DAILY_DAYS', 14),
+            'replace_placeholders' => true,
+        ],
+
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,

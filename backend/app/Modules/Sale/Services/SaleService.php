@@ -2,6 +2,7 @@
 
 namespace App\Modules\Sale\Services;
 
+use App\Core\Services\LoggingService;
 use App\Modules\Sale\Repositories\SaleRepository;
 use App\Modules\Sale\Models\Sale;
 use App\Modules\Product\Models\Product;
@@ -47,6 +48,14 @@ class SaleService
                 'total_profit' => $totalProfit,
             ]);
 
+            LoggingService::logSaleCreated(
+                saleId: $sale->id,
+                customer: $sale->customer,
+                totalAmount: $totalAmount,
+                totalProfit: $totalProfit,
+                itemsCount: count($data['items'])
+            );
+
             return $sale->load('items.product');
         });
     }
@@ -79,6 +88,12 @@ class SaleService
             $sale->update([
                 'canceled_at' => now(),
             ]);
+
+            LoggingService::logSaleCanceled(
+                saleId: $sale->id,
+                customer: $sale->customer,
+                totalAmount: $sale->total_amount
+            );
 
             return $sale->load('items.product');
         });
@@ -136,6 +151,13 @@ class SaleService
     private function validateStock(Product $product, int $quantity): void
     {
         if ($product->stock < $quantity) {
+            LoggingService::logInsufficientStock(
+                productId: $product->id,
+                productName: $product->name,
+                available: $product->stock,
+                requested: $quantity
+            );
+
             throw new \Exception("Estoque insuficiente para {$product->name}. Disponível: {$product->stock}, solicitado: {$quantity}");
         }
     }

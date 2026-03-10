@@ -2,6 +2,7 @@
 
 namespace App\Modules\Purchase\Services;
 
+use App\Core\Services\LoggingService;
 use App\Modules\Purchase\Repositories\PurchaseRepository;
 use App\Modules\Purchase\Models\Purchase;
 use App\Modules\Product\Models\Product;
@@ -41,6 +42,13 @@ class PurchaseService
             $purchase->update([
                 'total_amount' => $totalAmount,
             ]);
+
+            LoggingService::logPurchaseCreated(
+                purchaseId: $purchase->id,
+                supplier: $purchase->supplier,
+                totalAmount: $totalAmount,
+                itemsCount: count($data['items'])
+            );
 
             return $purchase->load('items.product');
         });
@@ -108,11 +116,24 @@ class PurchaseService
 
     private function updateProductOnPurchase(Product $product, float $newPrice, int $newQuantity): void
     {
+        $oldCost = (float) $product->average_cost;
+        $oldStock = $product->stock;
+
         $newAverageCost = $this->calculateWeightedAverageCost($product, $newPrice, $newQuantity);
+        $newStock = $product->stock + $newQuantity;
 
         $product->update([
-            'stock' => $product->stock + $newQuantity,
+            'stock' => $newStock,
             'average_cost' => $newAverageCost,
         ]);
+
+        LoggingService::logAverageCostUpdated(
+            productId: $product->id,
+            productName: $product->name,
+            oldCost: $oldCost,
+            newCost: $newAverageCost,
+            oldStock: $oldStock,
+            newStock: $newStock
+        );
     }
 }
