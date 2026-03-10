@@ -134,4 +134,26 @@ class ReportController extends Controller
         $data = $this->service->getStockReport();
         return StockReportResource::collection($data);
     }
+
+    /**
+     * Exportar Relatório
+     *
+     * Exporta relatórios em formato PDF ou Excel com filtros aplicados.
+     *
+     * @group Módulo de Relatórios
+     *
+     * @bodyParam type string required Tipo de exportação (pdf ou excel). Example: pdf
+     * @bodyParam report_name string required Nome do relatório (sales, purchases, profit, stock). Example: sales
+     * @bodyParam start_date string Data inicial (formato: Y-m-d). Example: 2024-01-01
+     * @bodyParam end_date string Data final (formato: Y-m-d). Example: 2024-12-31
+     * @bodyParam customer string Nome do cliente. Example: João
+     * @bodyParam supplier string Nome do fornecedor. Example: Fornecedor X
+     * @bodyParam product_id integer ID do produto. Example: 1
+     *
+     * @response 200 binary
+     */
+    public function export(\App\Modules\Report\Http\Requests\ExportReportRequest $request)
+    {
+        return $this->service->exportReport($request->validated());
+    }
 }

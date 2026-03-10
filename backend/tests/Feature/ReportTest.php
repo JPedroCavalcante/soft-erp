@@ -174,4 +174,43 @@ class ReportTest extends TestCase
         $this->assertCount(1, $response->json('data'));
         $this->assertEquals('Produto 1', $response->json('data.0.name'));
     }
+
+    public function test_export_pdf_returns_file(): void
+    {
+        Product::create(['name' => 'Produto 1', 'sale_price' => 100, 'stock' => 10, 'average_cost' => 80]);
+
+        $response = $this->postJson('/api/report/reports/export', [
+            'type' => 'pdf',
+            'report_name' => 'stock',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/pdf');
+    }
+
+    public function test_export_excel_returns_file(): void
+    {
+        Sale::create([
+            'customer' => 'Cliente Teste',
+            'total_amount' => 1000,
+            'total_profit' => 200,
+            'created_at' => now(),
+        ]);
+
+        $response = $this->postJson('/api/report/reports/export', [
+            'type' => 'excel',
+            'report_name' => 'sales',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertHeader('content-type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    }
+
+    public function test_export_requires_type_and_report_name(): void
+    {
+        $response = $this->postJson('/api/report/reports/export', []);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['type', 'report_name']);
+    }
 }
