@@ -12,6 +12,6 @@ export const authService = {
   },
 
   async me() {
-    return api.get<ApiResponse<User>>('/me');
+    return api.get<ApiResponse<User>>('/user');
   },
 };
