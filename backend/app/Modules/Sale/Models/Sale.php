@@ -14,6 +14,7 @@ class Sale extends Model
         'customer',
         'total_amount',
         'total_profit',
+        'created_at',
     ];
 
     protected $casts = [
