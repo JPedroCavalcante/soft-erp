@@ -17,7 +17,3 @@ mysql_data/
 /frontend/npm-debug.log
 /frontend/package-lock.json
 /frontend/.env
-
-/docs/*
-agent.md 
-DOCKER_GUIDE.md 
