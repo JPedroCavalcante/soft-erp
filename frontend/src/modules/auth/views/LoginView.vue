@@ -85,7 +85,7 @@ const credentials = ref<LoginCredentials>({
 const handleLogin = async () => {
   const success = await authStore.login(credentials.value);
   if (success) {
-    router.push('/products');
+    router.push('/dashboard');
   }
 };
 </script>
