@@ -12,9 +12,14 @@ class ProductService
         private readonly ProductRepository $repository
     ) {}
 
-    public function index(): Collection
+    public function index(int $perPage = 10)
     {
-        return $this->repository->all();
+        return $this->repository->all($perPage);
+    }
+
+    public function all()
+    {
+        return $this->repository->allWithoutPagination();
     }
 
     public function store(array $data): Product

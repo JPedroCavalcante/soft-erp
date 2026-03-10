@@ -5,12 +5,10 @@ namespace Tests\Unit;
 use App\Modules\Product\Models\Product;
 use App\Modules\Product\Repositories\ProductRepository;
 use App\Modules\Product\Services\ProductService;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class ProductServiceTest extends TestCase
 {
-    use DatabaseTransactions;
 
     private ProductService $service;
 
@@ -26,7 +24,7 @@ class ProductServiceTest extends TestCase
         Product::create(['name' => 'Product 2', 'sale_price' => 200.00]);
         Product::create(['name' => 'Product 3', 'sale_price' => 300.00]);
 
-        $products = $this->service->index();
+        $products = $this->service->all();
 
         $this->assertCount(3, $products);
     }
@@ -95,7 +93,7 @@ class ProductServiceTest extends TestCase
         sleep(1);
         $second = Product::create(['name' => 'Second', 'sale_price' => 200.00]);
 
-        $products = $this->service->index();
+        $products = $this->service->all();
 
         $this->assertEquals($second->id, $products->first()->id);
         $this->assertEquals($first->id, $products->last()->id);

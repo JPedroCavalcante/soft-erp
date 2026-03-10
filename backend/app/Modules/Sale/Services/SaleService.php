@@ -5,7 +5,6 @@ namespace App\Modules\Sale\Services;
 use App\Modules\Sale\Repositories\SaleRepository;
 use App\Modules\Sale\Models\Sale;
 use App\Modules\Product\Models\Product;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class SaleService
@@ -15,9 +14,14 @@ class SaleService
     ) {
     }
 
-    public function index(): Collection
+    public function index(int $perPage = 10)
     {
-        return $this->repository->all();
+        return $this->repository->all($perPage);
+    }
+
+    public function all()
+    {
+        return $this->repository->allWithoutPagination();
     }
 
     public function store(array $data): Sale
@@ -33,36 +37,9 @@ class SaleService
             $totalProfit = 0;
 
             foreach ($data['items'] as $item) {
-                $product = Product::findOrFail($item['product_id']);
-
-                // VALIDAÇÃO CRÍTICA: estoque insuficiente
-                if ($product->stock < $item['quantity']) {
-                    throw new \Exception("Estoque insuficiente para {$product->name}. Disponível: {$product->stock}, solicitado: {$item['quantity']}");
-                }
-
-                // Capturar custo médio histórico NO MOMENTO da venda
-                $historicalCost = (float) $product->average_cost;
-
-                // Calcular lucro do item (pode ser negativo se venda abaixo do custo)
-                $profit = ($item['unit_sale_price'] - $historicalCost) * $item['quantity'];
-
-                // Criar item da venda
-                $sale->items()->create([
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'unit_sale_price' => $item['unit_sale_price'],
-                    'historical_average_cost' => $historicalCost,
-                    'profit' => $profit,
-                ]);
-
-                // IMPORTANTE: Decrementar stock mas NÃO alterar average_cost
-                // (average_cost só muda em compras, não em vendas)
-                $product->update([
-                    'stock' => $product->stock - $item['quantity'],
-                ]);
-
-                $totalAmount += $item['unit_sale_price'] * $item['quantity'];
-                $totalProfit += $profit;
+                $totals = $this->processSaleItem($sale, $item);
+                $totalAmount += $totals['amount'];
+                $totalProfit += $totals['profit'];
             }
 
             $sale->update([
@@ -78,5 +55,55 @@ class SaleService
     {
         $sale = $this->repository->find($id);
         return $sale->load('items.product');
+    }
+
+    private function processSaleItem(Sale $sale, array $item): array
+    {
+        $product = $this->lockProduct($item['product_id']);
+        $this->validateStock($product, $item['quantity']);
+
+        $historicalCost = (float) $product->average_cost;
+        $profit = $this->calculateProfit($item['unit_sale_price'], $historicalCost, $item['quantity']);
+
+        $sale->items()->create([
+            'product_id' => $item['product_id'],
+            'quantity' => $item['quantity'],
+            'unit_sale_price' => $item['unit_sale_price'],
+            'historical_average_cost' => $historicalCost,
+            'profit' => $profit,
+        ]);
+
+        $this->updateProductStock($product, $item['quantity']);
+
+        return [
+            'amount' => $item['unit_sale_price'] * $item['quantity'],
+            'profit' => $profit,
+        ];
+    }
+
+    private function lockProduct(int $productId): Product
+    {
+        return Product::where('id', $productId)
+            ->lockForUpdate()
+            ->firstOrFail();
+    }
+
+    private function validateStock(Product $product, int $quantity): void
+    {
+        if ($product->stock < $quantity) {
+            throw new \Exception("Estoque insuficiente para {$product->name}. Disponível: {$product->stock}, solicitado: {$quantity}");
+        }
+    }
+
+    private function calculateProfit(float $salePrice, float $cost, int $quantity): float
+    {
+        return ($salePrice - $cost) * $quantity;
+    }
+
+    private function updateProductStock(Product $product, int $quantity): void
+    {
+        $product->update([
+            'stock' => $product->stock - $quantity,
+        ]);
     }
 }

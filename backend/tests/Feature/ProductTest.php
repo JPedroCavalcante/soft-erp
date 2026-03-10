@@ -2,14 +2,12 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use Tests\AuthenticatedTest;
 
 
 class ProductTest extends TestCase
 {
-    use DatabaseTransactions;
     use AuthenticatedTest;
 
     public function test_can_create_product(): void

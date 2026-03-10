@@ -5,12 +5,10 @@ namespace Tests\Unit;
 use App\Modules\Product\Models\Product;
 use App\Modules\Purchase\Models\Purchase;
 use App\Modules\Purchase\Services\PurchaseService;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class PurchaseServiceTest extends TestCase
 {
-    use DatabaseTransactions;
 
     private PurchaseService $service;
 

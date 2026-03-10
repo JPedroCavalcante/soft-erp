@@ -3,14 +3,12 @@
 namespace Tests\Feature;
 
 use App\Modules\Product\Models\Product;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 use Tests\AuthenticatedTest;
 
 
 class PurchaseTest extends TestCase
 {
-    use DatabaseTransactions;
     use AuthenticatedTest;
 
     public function test_purchase_updates_stock_and_average_cost(): void
