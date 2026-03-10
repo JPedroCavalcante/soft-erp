@@ -5,7 +5,6 @@ namespace App\Modules\Purchase\Services;
 use App\Modules\Purchase\Repositories\PurchaseRepository;
 use App\Modules\Purchase\Models\Purchase;
 use App\Modules\Product\Models\Product;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 class PurchaseService
@@ -15,9 +14,14 @@ class PurchaseService
     ) {
     }
 
-    public function index(): Collection
+    public function index(int $perPage = 10)
     {
-        return $this->repository->all();
+        return $this->repository->all($perPage);
+    }
+
+    public function all()
+    {
+        return $this->repository->allWithoutPagination();
     }
 
     public function store(array $data): Purchase
@@ -31,32 +35,7 @@ class PurchaseService
             $totalAmount = 0;
 
             foreach ($data['items'] as $item) {
-                $purchase->items()->create([
-                    'product_id' => $item['product_id'],
-                    'quantity' => $item['quantity'],
-                    'unit_price' => $item['unit_price'],
-                ]);
-
-                $product = Product::findOrFail($item['product_id']);
-
-                $currentStock = $product->stock;
-                $currentCost = (float) $product->average_cost;
-                $newQuantity = $item['quantity'];
-                $newPrice = (float) $item['unit_price'];
-
-                if ($currentStock + $newQuantity > 0) {
-                    $newAverageCost = (($currentCost * $currentStock) + ($newPrice * $newQuantity))
-                        / ($currentStock + $newQuantity);
-                } else {
-                    $newAverageCost = $newPrice;
-                }
-
-                $product->update([
-                    'stock' => $currentStock + $newQuantity,
-                    'average_cost' => $newAverageCost,
-                ]);
-
-                $totalAmount += $newPrice * $newQuantity;
+                $totalAmount += $this->processPurchaseItem($purchase, $item);
             }
 
             $purchase->update([
@@ -71,5 +50,51 @@ class PurchaseService
     {
         $purchase = $this->repository->find($id);
         return $purchase->load('items.product');
+    }
+
+    private function processPurchaseItem(Purchase $purchase, array $item): float
+    {
+        $purchase->items()->create([
+            'product_id' => $item['product_id'],
+            'quantity' => $item['quantity'],
+            'unit_price' => $item['unit_price'],
+        ]);
+
+        $product = $this->lockProduct($item['product_id']);
+        $newPrice = (float) $item['unit_price'];
+        $newQuantity = $item['quantity'];
+
+        $this->updateProductOnPurchase($product, $newPrice, $newQuantity);
+
+        return $newPrice * $newQuantity;
+    }
+
+    private function lockProduct(int $productId): Product
+    {
+        return Product::where('id', $productId)
+            ->lockForUpdate()
+            ->firstOrFail();
+    }
+
+    private function calculateWeightedAverageCost(Product $product, float $newPrice, int $newQuantity): float
+    {
+        $currentStock = $product->stock;
+        $currentCost = (float) $product->average_cost;
+
+        if ($currentStock + $newQuantity > 0) {
+            return ($currentCost * $currentStock + $newPrice * $newQuantity) / ($currentStock + $newQuantity);
+        }
+
+        return $newPrice;
+    }
+
+    private function updateProductOnPurchase(Product $product, float $newPrice, int $newQuantity): void
+    {
+        $newAverageCost = $this->calculateWeightedAverageCost($product, $newPrice, $newQuantity);
+
+        $product->update([
+            'stock' => $product->stock + $newQuantity,
+            'average_cost' => $newAverageCost,
+        ]);
     }
 }
