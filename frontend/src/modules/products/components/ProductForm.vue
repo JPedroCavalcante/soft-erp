@@ -1,202 +1,200 @@
 <template>
-  <div class="card">
-    <h2>Cadastrar Produto</h2>
+  <form @submit.prevent="handleSubmit" class="product-form">
+    <div class="form-group">
+      <label for="product-name">
+        Nome do Produto
+        <span class="required">*</span>
+      </label>
+      <input
+        id="product-name"
+        v-model="formData.name"
+        type="text"
+        placeholder="Digite o nome do produto"
+        required
+        :disabled="loading"
+        autocomplete="off"
+      />
+      <span v-if="errors.name" class="field-error">{{ errors.name }}</span>
+    </div>
 
-    <form @submit.prevent="handleSubmit" class="product-form">
-      <div class="form-group">
-        <label for="product-name">
-          Nome do Produto
-          <span class="required">*</span>
-        </label>
-        <input
-          id="product-name"
-          v-model="formData.name"
-          type="text"
-          placeholder="Digite o nome do produto"
-          aria-required="true"
-          :disabled="loading"
-        />
-      </div>
-
-      <div class="form-group">
-        <label for="sale-price">
-          Preço de Venda
-          <span class="required">*</span>
-        </label>
+    <div class="form-group">
+      <label for="sale-price">
+        Preço de Venda
+        <span class="required">*</span>
+      </label>
+      <div class="input-currency">
+        <span class="currency-symbol">R$</span>
         <input
           id="sale-price"
           v-model.number="formData.sale_price"
           type="number"
           step="0.01"
-          min="0"
-          placeholder="0.00"
-          aria-required="true"
+          min="0.01"
+          placeholder="0,00"
+          required
           :disabled="loading"
         />
       </div>
-
-      <div v-if="error" class="alert alert-error" role="alert">
-        {{ error }}
-      </div>
-
-      <div v-if="successMessage" class="alert alert-success" role="alert">
-        {{ successMessage }}
-      </div>
-
-      <button
-        type="submit"
-        class="btn btn-primary"
-        :disabled="loading"
-        :aria-busy="loading"
-      >
-        <span v-if="loading" class="spinner"></span>
-        {{ loading ? 'Cadastrando...' : 'Cadastrar Produto' }}
-      </button>
-    </form>
-  </div>
+      <span v-if="errors.sale_price" class="field-error">{{ errors.sale_price }}</span>
+    </div>
+  </form>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import type { CreateProductDTO } from '../types';
+import { ref, watch } from 'vue';
+import type { CreateProductDTO, Product } from '../types';
 
 interface Props {
   loading?: boolean;
-}
-
-interface Emits {
-  (e: 'submit', data: CreateProductDTO): void;
+  initialData?: Product | null;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
+  initialData: null,
 });
 
-const emit = defineEmits<Emits>();
+const emit = defineEmits<{
+  submit: [data: CreateProductDTO];
+}>();
 
-const formData = ref({
+const formData = ref<CreateProductDTO>({
   name: '',
   sale_price: 0,
 });
 
-const error = ref<string | null>(null);
-const successMessage = ref<string | null>(null);
+const errors = ref<Record<string, string>>({});
 
-const handleSubmit = () => {
-  error.value = null;
-  successMessage.value = null;
+watch(
+  () => props.initialData,
+  (data) => {
+    if (data) {
+      formData.value = {
+        name: data.name,
+        sale_price: data.sale_price,
+      };
+    }
+  },
+  { immediate: true }
+);
 
-  if (!formData.value.name || formData.value.name.length < 3) {
-    error.value = 'O nome deve ter no mínimo 3 caracteres';
-    return;
+const validateForm = (): boolean => {
+  errors.value = {};
+  let isValid = true;
+
+  if (!formData.value.name || formData.value.name.trim().length < 3) {
+    errors.value.name = 'O nome deve ter no mínimo 3 caracteres';
+    isValid = false;
   }
 
   if (!formData.value.sale_price || formData.value.sale_price <= 0) {
-    error.value = 'O preço de venda deve ser maior que zero';
-    return;
+    errors.value.sale_price = 'O preço deve ser maior que zero';
+    isValid = false;
   }
 
+  return isValid;
+};
+
+const handleSubmit = () => {
+  if (!validateForm()) return;
+
   emit('submit', {
-    name: formData.value.name,
+    name: formData.value.name.trim(),
     sale_price: formData.value.sale_price,
   });
 };
 
 const resetForm = () => {
   formData.value = { name: '', sale_price: 0 };
-  error.value = null;
+  errors.value = {};
 };
 
-const showSuccess = (message: string) => {
-  successMessage.value = message;
-  setTimeout(() => {
-    successMessage.value = null;
-  }, 3000);
+const submitForm = () => {
+  handleSubmit();
 };
 
-const showError = (message: string) => {
-  error.value = message;
-};
-
-defineExpose({ resetForm, showSuccess, showError });
+defineExpose({ resetForm, submitForm });
 </script>
 
 <style scoped>
-.card {
-  background: #ffffff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  margin-bottom: 2rem;
-}
-
-.card h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #2c3e50;
-  margin: 0 0 1.5rem 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #ecf0f1;
-}
-
 .product-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 20px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 8px;
 }
 
 .form-group label {
-  font-size: 0.875rem;
+  font-size: 14px;
   font-weight: 600;
-  color: #34495e;
+  color: var(--gray-700);
 }
 
 .required {
-  color: #e74c3c;
+  color: var(--danger-600);
 }
 
 .form-group input {
-  padding: 0.75rem;
-  font-size: 1rem;
-  border: 2px solid #ecf0f1;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  background: #ffffff;
+  padding: 12px 14px;
+  font-size: 15px;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius);
+  transition: all var(--transition-base);
+  background: white;
+  font-family: inherit;
+}
+
+.form-group input:hover:not(:disabled) {
+  border-color: var(--gray-300);
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #3498db;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  border-color: var(--primary-600);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
 .form-group input:disabled {
-  background: #f8f9fa;
+  background: var(--gray-50);
   cursor: not-allowed;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
-.form-group input::placeholder {
-  color: #95a5a6;
+.input-currency {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.alert {
-  padding: 1rem;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  animation: slideIn 0.3s ease;
+.currency-symbol {
+  position: absolute;
+  left: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-600);
+  pointer-events: none;
+}
+
+.input-currency input {
+  padding-left: 48px;
+  width: 100%;
+}
+
+.field-error {
+  font-size: 13px;
+  color: var(--danger-600);
+  animation: slideIn 0.2s ease;
 }
 
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(-10px);
+    transform: translateY(-4px);
   }
   to {
     opacity: 1;
@@ -204,83 +202,9 @@ defineExpose({ resetForm, showSuccess, showError });
   }
 }
 
-.alert-error {
-  background: #fee;
-  color: #c33;
-  border: 1px solid #fcc;
-}
-
-.alert-success {
-  background: #efe;
-  color: #2c7a2c;
-  border: 1px solid #cfc;
-}
-
-.btn {
-  padding: 0.875rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.btn-primary {
-  background: #3498db;
-  color: #ffffff;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #2980b9;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-}
-
-.btn-primary:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #ffffff;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-@media (max-width: 768px) {
-  .card {
-    padding: 1.5rem;
-    border-radius: 6px;
-  }
-
-  .card h2 {
-    font-size: 1.25rem;
-  }
-}
-
 @media (max-width: 480px) {
-  .card {
-    padding: 1rem;
-  }
-
-  .btn {
-    width: 100%;
+  .form-group input {
+    font-size: 16px; /* Previne zoom no iOS */
   }
 }
 </style>
