@@ -11,7 +11,7 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'admin@softwerp.com'],
+            ['email' => 'admin@softerp.com'],
             [
                 'name' => 'Administrador',
                 'password' => Hash::make('password'),
@@ -19,7 +19,7 @@ class UserSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'user@softwerp.com'],
+            ['email' => 'user@softerp.com'],
             [
                 'name' => 'Usuário Teste',
                 'password' => Hash::make('password'),
