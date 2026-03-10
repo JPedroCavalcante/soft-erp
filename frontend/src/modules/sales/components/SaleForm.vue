@@ -12,7 +12,9 @@
           type="text"
           placeholder="Nome do cliente"
           :disabled="loading"
+          :class="{ 'input-error': errors.customer }"
         />
+        <span v-if="errors.customer" class="field-error">{{ errors.customer }}</span>
       </div>
 
       <div class="items-section">
@@ -81,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useProductsStore } from '@/stores/products';
 import type { CreateSaleDTO } from '@/stores/sales';
 
@@ -111,6 +113,18 @@ const formData = ref<CreateSaleDTO>({
 
 const error = ref<string | null>(null);
 const successMessage = ref<string | null>(null);
+const errors = ref<Record<string, string>>({});
+
+watch(
+  () => formData.value.customer,
+  (newCustomer: string) => {
+    if (newCustomer && newCustomer.trim().length > 0 && newCustomer.trim().length < 3) {
+      errors.value.customer = 'O cliente deve ter no mínimo 3 caracteres';
+    } else {
+      delete errors.value.customer;
+    }
+  }
+);
 
 const addItem = () => {
   formData.value.items.push({ product_id: 0, quantity: 1, unit_sale_price: 0 });
@@ -262,6 +276,34 @@ defineExpose({ resetForm, showSuccess, showError, submitForm });
   background: #f8f9fa;
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.form-group input.input-error,
+.form-group select.input-error {
+  border-color: var(--danger-500);
+}
+
+.form-group input.input-error:focus,
+.form-group select.input-error:focus {
+  border-color: var(--danger-600);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.field-error {
+  font-size: 13px;
+  color: var(--danger-600);
+  animation: slideIn 0.2s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .items-section {

@@ -12,6 +12,7 @@
         placeholder="Digite o nome do produto"
         required
         :disabled="loading"
+        :class="{ 'input-error': errors.name }"
         autocomplete="off"
       />
       <span v-if="errors.name" class="field-error">{{ errors.name }}</span>
@@ -33,6 +34,7 @@
           placeholder="0,00"
           required
           :disabled="loading"
+          :class="{ 'input-error': errors.sale_price }"
         />
       </div>
       <span v-if="errors.sale_price" class="field-error">{{ errors.sale_price }}</span>
@@ -67,7 +69,7 @@ const errors = ref<Record<string, string>>({});
 
 watch(
   () => props.initialData,
-  (data) => {
+  (data: Product | null) => {
     if (data) {
       formData.value = {
         name: data.name,
@@ -76,6 +78,28 @@ watch(
     }
   },
   { immediate: true }
+);
+
+watch(
+  () => formData.value.name,
+  (newName: string) => {
+    if (newName && newName.trim().length > 0 && newName.trim().length < 3) {
+      errors.value.name = 'O nome deve ter no mínimo 3 caracteres';
+    } else {
+      delete errors.value.name;
+    }
+  }
+);
+
+watch(
+  () => formData.value.sale_price,
+  (newPrice: number) => {
+    if (newPrice && newPrice <= 0) {
+      errors.value.sale_price = 'O preço deve ser maior que zero';
+    } else {
+      delete errors.value.sale_price;
+    }
+  }
 );
 
 const validateForm = (): boolean => {
@@ -163,6 +187,15 @@ defineExpose({ resetForm, submitForm });
   background: var(--gray-50);
   cursor: not-allowed;
   opacity: 0.7;
+}
+
+.form-group input.input-error {
+  border-color: var(--danger-500);
+}
+
+.form-group input.input-error:focus {
+  border-color: var(--danger-600);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
 }
 
 .input-currency {
